@@ -30,10 +30,17 @@ type Redis interface {
 	DeleteRefreshToken(ctx context.Context, key string) error
 }
 
+type Tweet interface {
+	CreateTweet(tweet dto.CreateTweetDto) (uint, error)
+	GetTweetById(id string) (*models.Tweet, error)
+	GetUserTweets(userId uint) ([]*models.Tweet, error)
+}
+
 type Service struct {
 	Authorization
 	User
 	Redis
+	Tweet
 }
 
 func NewService(repos *repository.Repository) *Service {
@@ -41,5 +48,6 @@ func NewService(repos *repository.Repository) *Service {
 		Authorization: NewAuthService(),
 		User:          NewUserService(repos.User),
 		Redis:         NewRedisService(repos.Redis),
+		Tweet: 		   NewTweetService(repos.Tweet),
 	}
 }

@@ -27,6 +27,7 @@ func NewPostgresDB(cfg PostgresConfig) (*gorm.DB, error) {
 	}
 
 	db.AutoMigrate(&models.User{})
+	db.AutoMigrate(&models.Tweet{})
 
 	return db, nil
 }

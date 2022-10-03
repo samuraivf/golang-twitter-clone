@@ -24,14 +24,22 @@ type Redis interface {
 	DeleteRefreshToken(ctx context.Context, key string) error
 }
 
+type Tweet interface {
+	CreateTweet(tweetDto dto.CreateTweetDto) (uint, error)
+	GetTweetById(id string) (*models.Tweet, error)
+	GetUserTweets(userId uint) ([]*models.Tweet, error)
+}
+
 type Repository struct {
 	User
 	Redis
+	Tweet
 }
 
 func NewRepository(db *gorm.DB, redis *redis.Client) *Repository {
 	return &Repository{
 		User:  NewUserPostgres(db),
+		Tweet: NewTweetPostgres(db),
 		Redis: NewRedis(redis),
 	}
 }

@@ -34,6 +34,13 @@ func (h *Handler) InitServer() *gin.Engine {
 			user.POST("/add-image", h.addImage)
 			user.GET("/:username", h.getUserByUsername)
 		}
+
+		tweet := api.Group("/tweet", h.isAuthorized)
+		{
+			tweet.POST("/create", h.createTweet)
+			tweet.GET("/:id", h.getTweetById)
+			tweet.GET("/user-tweets/:userId", h.getUserTweets)
+		}
 	}
 
 	return router

@@ -7,18 +7,25 @@ import (
 	"github.com/samuraivf/twitter-clone/internal/dto"
 )
 
+const (
+	errEmptyParamUsername = "empty param username"
+	errCannotFindUser = "cannot find a user"
+	errCannotUpdateUserProfile = "cannot update user profile"
+	errInvalidImage = "invalid image"
+)
+
 func (h *Handler) getUserByUsername(c *gin.Context) {
 	username := c.Param("username")
 
 	if username == "" {
-		newErrorResponse(c, http.StatusBadRequest, "empty param username")
+		newErrorResponse(c, http.StatusBadRequest, errEmptyParamUsername)
 		return
 	}
 
 	user, err := h.services.User.GetUserByUsername(username)
 
 	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, "cannot find user")
+		newErrorResponse(c, http.StatusBadRequest, errCannotFindUser)
 	}
 
 	c.JSON(http.StatusOK, user)
@@ -35,7 +42,7 @@ func (h *Handler) editProfile(c *gin.Context) {
 	err := h.services.User.EditProfile(user)
 
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, "cannot update user profile")
+		newErrorResponse(c, http.StatusInternalServerError, errCannotUpdateUserProfile)
 		return
 	}
 
@@ -52,7 +59,7 @@ func (h *Handler) addImage(c *gin.Context) {
 	var image dto.AddImageDto
 
 	if err := c.BindJSON(&image); err != nil {
-		newErrorResponse(c, http.StatusBadRequest, "invalid image")
+		newErrorResponse(c, http.StatusBadRequest, errInvalidImage)
 		return
 	}
 

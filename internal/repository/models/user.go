@@ -8,4 +8,5 @@ type User struct {
 	Password    string `json:"-"`
 	Description string `json:"description"`
 	Image       []byte `json:"image"`
+	Tweets []Tweet
 }

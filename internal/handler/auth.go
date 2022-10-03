@@ -13,17 +13,17 @@ func (h *Handler) signUp(c *gin.Context) {
 	var user dto.CreateUserDto
 
 	if err := c.BindJSON(&user); err != nil {
-		newErrorResponse(c, http.StatusBadRequest, "invalid input body")
+		newErrorResponse(c, http.StatusBadRequest, errInvalidInputBody)
 		return
 	}
 
 	if _, err := h.services.User.GetUserByEmail(user.Email); err == nil {
-		newErrorResponse(c, http.StatusBadRequest, "user have already exists")
+		newErrorResponse(c, http.StatusBadRequest, errUserHaveAlreadyExists)
 		return
 	}
 
 	if _, err := h.services.User.GetUserByUsername(user.Username); err == nil {
-		newErrorResponse(c, http.StatusBadRequest, "user have already exists")
+		newErrorResponse(c, http.StatusBadRequest, errUserHaveAlreadyExists)
 		return
 	}
 
@@ -42,7 +42,7 @@ func (h *Handler) signIn(c *gin.Context) {
 	var user dto.LoginDto
 
 	if err := c.BindJSON(&user); err != nil {
-		newErrorResponse(c, http.StatusBadRequest, "invalid input body")
+		newErrorResponse(c, http.StatusBadRequest, errInvalidInputBody)
 		return
 	}
 
@@ -59,7 +59,7 @@ func (h *Handler) refresh(c *gin.Context) {
 	refreshToken, err := c.Cookie("refreshToken")
 
 	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, "cannot logout: invalid refreshToken cookie")
+		newErrorResponse(c, http.StatusBadRequest, errInvalidRefreshToken)
 		return
 	}
 
@@ -75,7 +75,7 @@ func (h *Handler) refresh(c *gin.Context) {
 	_, err = h.services.Redis.GetRefreshToken(c.Request.Context(), key)
 
 	if err != nil {
-		newErrorResponse(c, http.StatusUnauthorized, "token does not exist")
+		newErrorResponse(c, http.StatusUnauthorized, errTokenDoesNotExist)
 		return
 	}
 
@@ -86,14 +86,14 @@ func (h *Handler) logout(c *gin.Context) {
 	refreshToken, err := c.Cookie("refreshToken")
 
 	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, "cannot logout: invalid refreshToken cookie")
+		newErrorResponse(c, http.StatusBadRequest, errInvalidRefreshToken)
 		return
 	}
 
 	refreshTokenData, err := h.services.Authorization.ParseRefreshToken(refreshToken)
 
 	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, "invalid refreshToken")
+		newErrorResponse(c, http.StatusBadRequest, errInvalidRefreshToken)
 		return
 	}
 
