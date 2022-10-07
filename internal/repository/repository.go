@@ -22,6 +22,8 @@ type Redis interface {
 	SetRefreshToken(ctx context.Context, key, refreshToken string, TTL time.Duration) error
 	GetRefreshToken(ctx context.Context, key string) (string, error)
 	DeleteRefreshToken(ctx context.Context, key string) error
+	GetUserRefreshTokens(ctx context.Context, pattern string) ([]string, error)
+	DeleteUserRefreshTokens(ctx context.Context, keys []string) error
 }
 
 type Tweet interface {
