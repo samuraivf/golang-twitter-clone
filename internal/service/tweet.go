@@ -18,10 +18,18 @@ func (s *TweetService) CreateTweet(tweetDto dto.CreateTweetDto) (uint, error) {
 	return s.repo.CreateTweet(tweetDto)
 }
 
-func (s *TweetService) GetTweetById(id string) (*models.Tweet, error) {
+func (s *TweetService) GetTweetById(id uint) (*models.Tweet, error) {
 	return s.repo.GetTweetById(id)
 }
 
 func (s *TweetService) GetUserTweets(userId uint) ([]*models.Tweet, error) {
 	return s.repo.GetUserTweets(userId)
+}
+
+func (s *TweetService) UpdateTweet(tweetDto dto.UpdateTweetDto) (uint, error) {
+	return s.repo.UpdateTweet(tweetDto)
+}
+
+func (s *TweetService) DeleteTweet(tweetId uint) error {
+	return s.repo.DeleteTweet(tweetId)
 }

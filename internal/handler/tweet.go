@@ -32,15 +32,50 @@ func (h *Handler) createTweet(c *gin.Context) {
 	})
 }
 
-func (h *Handler) getTweetById(c *gin.Context) {
-	id := c.Param("id")
+func (h *Handler) updateTweet(c *gin.Context) {
+	var tweetDto dto.UpdateTweetDto
 
-	if id == "" {
-		newErrorResponse(c, http.StatusBadRequest, errEmptyTweetIdParam)
+	if err := c.BindJSON(&tweetDto); err != nil {
+		newErrorResponse(c, http.StatusBadRequest, errInvalidInputBody)
 		return
 	}
 
-	tweet, err := h.services.Tweet.GetTweetById(id)
+	tweetID, err := h.services.Tweet.UpdateTweet(tweetDto)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, map[string]uint{
+		"tweetId": tweetID,
+	})
+}
+
+func (h *Handler) deleteTweet(c *gin.Context) {
+	tweetId := getTweetId(c)
+
+	if tweetId == 0 {
+		return
+	}
+
+	err := h.services.Tweet.DeleteTweet(tweetId)
+
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, tweetId)
+}
+
+func (h *Handler) getTweetById(c *gin.Context) {
+	tweetId := getTweetId(c)
+
+	if tweetId == 0 {
+		return
+	}
+
+	tweet, err := h.services.Tweet.GetTweetById(tweetId)
 
 	if err != nil {
 		newErrorResponse(c, http.StatusNotFound, err.Error())
@@ -73,4 +108,22 @@ func (h *Handler) getUserTweets(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, tweets)
+}
+
+func getTweetId(c *gin.Context) uint {
+	id := c.Param("id")
+
+	if id == "" {
+		newErrorResponse(c, http.StatusBadRequest, errEmptyTweetIdParam)
+		return 0
+	}
+
+	tweetIdUint, err := strconv.ParseUint(id, 10, 64)
+
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		return 0
+	}
+
+	return uint(tweetIdUint)
 }

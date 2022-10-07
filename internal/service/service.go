@@ -31,9 +31,11 @@ type Redis interface {
 }
 
 type Tweet interface {
-	CreateTweet(tweet dto.CreateTweetDto) (uint, error)
-	GetTweetById(id string) (*models.Tweet, error)
+	CreateTweet(tweetDto dto.CreateTweetDto) (uint, error)
+	GetTweetById(id uint) (*models.Tweet, error)
 	GetUserTweets(userId uint) ([]*models.Tweet, error)
+	UpdateTweet(tweetDto dto.UpdateTweetDto) (uint, error)
+	DeleteTweet(tweetId uint) error
 }
 
 type Service struct {

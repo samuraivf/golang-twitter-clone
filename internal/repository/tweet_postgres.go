@@ -28,7 +28,27 @@ func (r *TweetPostgres) CreateTweet(tweetDto dto.CreateTweetDto) (uint, error) {
 	return tweet.ID, nil
 }
 
-func (r *TweetPostgres) GetTweetById(id string) (*models.Tweet, error) {
+func (r *TweetPostgres) UpdateTweet(tweetDto dto.UpdateTweetDto) (uint, error) {
+	tweet, err := r.GetTweetById(tweetDto.TweetID)
+
+	if err != nil {
+		return  0, err
+	}
+
+	tweet.Text = tweetDto.Text
+
+	if err := r.db.Save(&tweet).Error; err != nil {
+		return 0, err
+	}
+
+	return tweet.ID, nil
+}
+
+func (r *TweetPostgres) DeleteTweet(tweetId uint) error {
+	return r.db.Delete(&models.Tweet{}, tweetId).Error
+}
+
+func (r *TweetPostgres) GetTweetById(id uint) (*models.Tweet, error) {
 	var tweet *models.Tweet
 
 	result := r.db.First(&tweet, id)
