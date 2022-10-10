@@ -9,4 +9,5 @@ type User struct {
 	Description string `json:"description"`
 	Image       []byte `json:"image"`
 	Tweets []Tweet
+	LikedTweets []*Tweet `json:"likedTweets" gorm:"many2many:user_tweets;"`
 }

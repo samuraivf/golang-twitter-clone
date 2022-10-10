@@ -51,6 +51,42 @@ func (h *Handler) updateTweet(c *gin.Context) {
 	})
 }
 
+func (h *Handler) likeTweet(c *gin.Context) {
+	userId := getUserId(c)
+	tweetId := getTweetId(c)
+
+	if userId == 0 || tweetId == 0 {
+		return
+	}
+
+	err := h.services.Tweet.LikeTweet(tweetId, userId)
+
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, true)
+}
+
+func (h *Handler) unlikeTweet( c *gin.Context) {
+	userId := getUserId(c)
+	tweetId := getTweetId(c)
+
+	if userId == 0 || tweetId == 0 {
+		return
+	}
+
+	err := h.services.Tweet.UnlikeTweet(tweetId, userId)
+
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, true)
+}
+
 func (h *Handler) deleteTweet(c *gin.Context) {
 	tweetId := getTweetId(c)
 
@@ -108,22 +144,4 @@ func (h *Handler) getUserTweets(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, tweets)
-}
-
-func getTweetId(c *gin.Context) uint {
-	id := c.Param("id")
-
-	if id == "" {
-		newErrorResponse(c, http.StatusBadRequest, errEmptyTweetIdParam)
-		return 0
-	}
-
-	tweetIdUint, err := strconv.ParseUint(id, 10, 64)
-
-	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, err.Error())
-		return 0
-	}
-
-	return uint(tweetIdUint)
 }

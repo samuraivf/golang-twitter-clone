@@ -42,6 +42,8 @@ func (h *Handler) InitServer() *gin.Engine {
 			tweet.GET("/user-tweets/:userId", h.getUserTweets)
 			tweet.PUT("/update", h.updateTweet)
 			tweet.DELETE("/:id", h.deleteTweet)
+			tweet.GET("/like/:id", h.likeTweet)
+			tweet.GET("/unlike/:id", h.unlikeTweet)
 		}
 	}
 

@@ -36,6 +36,8 @@ type Tweet interface {
 	GetUserTweets(userId uint) ([]*models.Tweet, error)
 	UpdateTweet(tweetDto dto.UpdateTweetDto) (uint, error)
 	DeleteTweet(tweetId uint) error
+	LikeTweet(tweetId, userId uint) error
+	UnlikeTweet(tweetId, userId uint) error
 }
 
 type Service struct {

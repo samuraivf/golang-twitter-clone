@@ -33,3 +33,11 @@ func (s *TweetService) UpdateTweet(tweetDto dto.UpdateTweetDto) (uint, error) {
 func (s *TweetService) DeleteTweet(tweetId uint) error {
 	return s.repo.DeleteTweet(tweetId)
 }
+
+func (s *TweetService) LikeTweet(tweetId, userId uint) error {
+	return s.repo.LikeTweet(tweetId, userId)
+}
+
+func (s *TweetService) UnlikeTweet(tweetId, userId uint) error {
+	return s.repo.UnlikeTweet(tweetId, userId)
+}

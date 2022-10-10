@@ -1,9 +1,15 @@
 package repository
 
 import (
+	"errors"
+
 	"github.com/samuraivf/twitter-clone/internal/dto"
 	"github.com/samuraivf/twitter-clone/internal/repository/models"
 	"gorm.io/gorm"
+)
+
+var (
+	errUserAlreadyLikedATweet = errors.New("user have already liked a tweet")
 )
 
 type TweetPostgres struct {
@@ -68,4 +74,48 @@ func (r *TweetPostgres) GetUserTweets(userId uint) ([]*models.Tweet, error) {
 	}
 
 	return tweets, nil
+}
+
+func (r *TweetPostgres) LikeTweet(tweetId, userId uint) error {
+	var tweet models.Tweet
+
+	if err := r.db.Where("id = ?", tweetId).Preload("Likes").First(&tweet).Error; err != nil {
+		return err
+	}
+
+	for _, user := range tweet.Likes {
+		if user.ID == userId {
+			return errUserAlreadyLikedATweet
+		}
+	}
+
+	var user models.User
+
+	if err := r.db.First(&user, userId).Error; err != nil {
+		return err
+	}
+
+	if err := r.db.Model(&tweet).Association("Likes").Append(&user); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *TweetPostgres) UnlikeTweet(tweetId, userId uint) error {
+	var tweet models.Tweet
+
+	if err := r.db.Where("id = ?", tweetId).Preload("Likes").First(&tweet).Error; err != nil {
+		return err
+	}
+
+	for _, user := range tweet.Likes {
+		if user.ID == userId {
+			if err := r.db.Model(&tweet).Association("Likes").Delete(user); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
 }

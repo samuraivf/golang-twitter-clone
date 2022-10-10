@@ -45,7 +45,7 @@ func (r *UserPostgres) GetUserByEmail(email string) (*models.User, error) {
 
 func (r *UserPostgres) GetUserByUsername(username string) (*models.User, error) {
 	var user *models.User
-	result := r.db.Where("username = ?", username).Preload("Tweets").First(&user)
+	result := r.db.Where("username = ?", username).Preload("Tweets.Likes").Preload("LikedTweets").First(&user)
 
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return nil, result.Error
