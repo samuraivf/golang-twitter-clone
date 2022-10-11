@@ -45,6 +45,12 @@ func (h *Handler) InitServer() *gin.Engine {
 			tweet.GET("/like/:id", h.likeTweet)
 			tweet.GET("/unlike/:id", h.unlikeTweet)
 		}
+
+		comment := api.Group("/comment", h.isAuthorized)
+		{
+			comment.POST("/create", h.createComment)
+			comment.GET("/:id", h.getCommentById)
+		}
 	}
 
 	return router

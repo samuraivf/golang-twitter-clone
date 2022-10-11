@@ -83,7 +83,7 @@ func (r *UserPostgres) AddImage(image []byte, userId uint) error {
 
 	if err = r.db.Save(&user).Error; err != nil {
 		return err
-	} 
+	}
 
 	return nil
 }

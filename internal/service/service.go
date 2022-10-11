@@ -40,11 +40,17 @@ type Tweet interface {
 	UnlikeTweet(tweetId, userId uint) error
 }
 
+type Comment interface {
+	CreateComment(commentDto dto.CreateCommentDto) (uint, error)
+	GetCommentById(id uint) (*models.Comment, error)
+}
+
 type Service struct {
 	Authorization
 	User
 	Redis
 	Tweet
+	Comment
 }
 
 func NewService(repos *repository.Repository) *Service {
@@ -52,6 +58,7 @@ func NewService(repos *repository.Repository) *Service {
 		Authorization: NewAuthService(),
 		User:          NewUserService(repos.User),
 		Redis:         NewRedisService(repos.Redis),
-		Tweet: 		   NewTweetService(repos.Tweet),
+		Tweet:         NewTweetService(repos.Tweet),
+		Comment:	   NewCommentService(repos.Comment),
 	}
 }

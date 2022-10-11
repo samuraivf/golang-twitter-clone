@@ -22,7 +22,7 @@ func NewTweetPostgres(db *gorm.DB) *TweetPostgres {
 
 func (r *TweetPostgres) CreateTweet(tweetDto dto.CreateTweetDto) (uint, error) {
 	tweet := models.Tweet{
-		Text: tweetDto.Text,
+		Text:   tweetDto.Text,
 		UserID: tweetDto.UserID,
 	}
 
@@ -38,7 +38,7 @@ func (r *TweetPostgres) UpdateTweet(tweetDto dto.UpdateTweetDto) (uint, error) {
 	tweet, err := r.GetTweetById(tweetDto.TweetID)
 
 	if err != nil {
-		return  0, err
+		return 0, err
 	}
 
 	tweet.Text = tweetDto.Text
@@ -57,7 +57,7 @@ func (r *TweetPostgres) DeleteTweet(tweetId uint) error {
 func (r *TweetPostgres) GetTweetById(id uint) (*models.Tweet, error) {
 	var tweet *models.Tweet
 
-	result := r.db.First(&tweet, id)
+	result := r.db.Where("id = ?", id).Preload("Comments").First(&tweet)
 	if result.Error != nil {
 		return nil, result.Error
 	}

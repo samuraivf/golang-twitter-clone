@@ -36,10 +36,16 @@ type Tweet interface {
 	UnlikeTweet(tweetId, userId uint) error
 }
 
+type Comment interface {
+	CreateComment(commentDto dto.CreateCommentDto) (uint, error)
+	GetCommentById(id uint) (*models.Comment, error)
+}
+
 type Repository struct {
 	User
 	Redis
 	Tweet
+	Comment
 }
 
 func NewRepository(db *gorm.DB, redis *redis.Client) *Repository {
@@ -47,5 +53,6 @@ func NewRepository(db *gorm.DB, redis *redis.Client) *Repository {
 		User:  NewUserPostgres(db),
 		Tweet: NewTweetPostgres(db),
 		Redis: NewRedis(redis),
+		Comment: NewCommentPostgres(db),
 	}
 }

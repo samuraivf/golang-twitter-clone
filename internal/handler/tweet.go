@@ -145,3 +145,21 @@ func (h *Handler) getUserTweets(c *gin.Context) {
 
 	c.JSON(http.StatusOK, tweets)
 }
+
+func getTweetId(c *gin.Context) uint {
+	id := c.Param("id")
+
+	if id == "" {
+		newErrorResponse(c, http.StatusBadRequest, errEmptyTweetIdParam)
+		return 0
+	}
+
+	tweetIdUint, err := strconv.ParseUint(id, 10, 64)
+
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		return 0
+	}
+
+	return uint(tweetIdUint)
+}

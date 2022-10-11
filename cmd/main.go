@@ -19,7 +19,7 @@ import (
 func main() {
 	ctx := context.Background()
 	handler, closeRepos := initApplication(ctx)
-	
+
 	server := new(server.Server)
 	go func() {
 		if err := server.Run(viper.GetString("port"), handler.InitServer()); err != http.ErrServerClosed {
