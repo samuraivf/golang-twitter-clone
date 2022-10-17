@@ -1,6 +1,8 @@
 package service
 
 import (
+	"strings"
+
 	"github.com/samuraivf/twitter-clone/internal/dto"
 	"github.com/samuraivf/twitter-clone/internal/repository"
 	"github.com/samuraivf/twitter-clone/internal/repository/models"
@@ -15,7 +17,15 @@ func NewTweetService(repo repository.Tweet) *TweetService {
 }
 
 func (s *TweetService) CreateTweet(tweetDto dto.CreateTweetDto) (uint, error) {
-	return s.repo.CreateTweet(tweetDto)
+	var mentionedUsers []string
+
+	for _, letter := range strings.Split(tweetDto.Text, " ") {
+		if letter[0] == byte('@') {
+			mentionedUsers = append(mentionedUsers, letter[1:])
+		}
+	}
+
+	return s.repo.CreateTweet(tweetDto, mentionedUsers)
 }
 
 func (s *TweetService) GetTweetById(id uint) (*models.Tweet, error) {

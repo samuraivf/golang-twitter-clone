@@ -50,6 +50,10 @@ func (h *Handler) InitServer() *gin.Engine {
 		{
 			comment.POST("/create", h.createComment)
 			comment.GET("/:id", h.getCommentById)
+			comment.PUT("/update", h.updateComment)
+			comment.DELETE("/:id", h.deleteComment)
+			comment.GET("/like/:id", h.likeComment)
+			comment.GET("/unlike/:id", h.unlikeComment)
 		}
 	}
 

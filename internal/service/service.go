@@ -43,6 +43,10 @@ type Tweet interface {
 type Comment interface {
 	CreateComment(commentDto dto.CreateCommentDto) (uint, error)
 	GetCommentById(id uint) (*models.Comment, error)
+	UpdateComment(commentDto dto.UpdateCommentDto) (uint, error)
+	DeleteComment(id uint) error
+	LikeComment(commentId, userId uint) error
+	UnlikeComment(commentId, userId uint) error
 }
 
 type Service struct {

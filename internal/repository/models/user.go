@@ -10,4 +10,6 @@ type User struct {
 	Image       []byte `json:"image"`
 	Tweets      []Tweet `json:"tweets"`
 	LikedTweets []*Tweet `json:"likedTweets" gorm:"many2many:user_tweets;"`
+	LikedComments []*Comment `json:"likedComments" gorm:"many2many:user_comments;"`
+	MentionedIn []*Tweet `json:"mentionedIn" gorm:"many2many:user_mentionedIn;"`
 }

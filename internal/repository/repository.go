@@ -27,7 +27,7 @@ type Redis interface {
 }
 
 type Tweet interface {
-	CreateTweet(tweetDto dto.CreateTweetDto) (uint, error)
+	CreateTweet(tweetDto dto.CreateTweetDto, mentionedUsers []string) (uint, error)
 	GetTweetById(id uint) (*models.Tweet, error)
 	GetUserTweets(userId uint) ([]*models.Tweet, error)
 	UpdateTweet(tweetDto dto.UpdateTweetDto) (uint, error)
@@ -39,6 +39,10 @@ type Tweet interface {
 type Comment interface {
 	CreateComment(commentDto dto.CreateCommentDto) (uint, error)
 	GetCommentById(id uint) (*models.Comment, error)
+	UpdateComment(commentDto dto.UpdateCommentDto) (uint, error)
+	DeleteComment(id uint) error
+	LikeComment(commentId, userId uint) error
+	UnlikeComment(commentId, userId uint) error
 }
 
 type Repository struct {

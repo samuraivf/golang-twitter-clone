@@ -20,10 +20,23 @@ func NewTweetPostgres(db *gorm.DB) *TweetPostgres {
 	return &TweetPostgres{db}
 }
 
-func (r *TweetPostgres) CreateTweet(tweetDto dto.CreateTweetDto) (uint, error) {
+func (r *TweetPostgres) CreateTweet(tweetDto dto.CreateTweetDto, mentionedUsers []string) (uint, error) {
 	tweet := models.Tweet{
 		Text:   tweetDto.Text,
 		UserID: tweetDto.UserID,
+	}
+
+	for _, user := range mentionedUsers {
+		var userFromDB models.User
+
+		if err := r.db.Where("username = ?", user).First(&userFromDB).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				continue
+			} else {
+				return 0, err
+			}
+		}
+		tweet.MentionedUsers = append(tweet.MentionedUsers, &userFromDB)
 	}
 
 	result := r.db.Create(&tweet)
@@ -57,7 +70,7 @@ func (r *TweetPostgres) DeleteTweet(tweetId uint) error {
 func (r *TweetPostgres) GetTweetById(id uint) (*models.Tweet, error) {
 	var tweet *models.Tweet
 
-	result := r.db.Where("id = ?", id).Preload("Comments").First(&tweet)
+	result := r.db.Where("id = ?", id).Preload("Comments").Preload("MentionedUsers").First(&tweet)
 	if result.Error != nil {
 		return nil, result.Error
 	}
