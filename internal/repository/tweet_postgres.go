@@ -2,10 +2,12 @@ package repository
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/samuraivf/twitter-clone/internal/dto"
 	"github.com/samuraivf/twitter-clone/internal/repository/models"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 var (
@@ -14,16 +16,57 @@ var (
 
 type TweetPostgres struct {
 	db *gorm.DB
+	message Message
 }
 
-func NewTweetPostgres(db *gorm.DB) *TweetPostgres {
-	return &TweetPostgres{db}
+func NewTweetPostgres(db *gorm.DB, message Message) *TweetPostgres {
+	return &TweetPostgres{db, message}
 }
 
 func (r *TweetPostgres) CreateTweet(tweetDto dto.CreateTweetDto, mentionedUsers []string) (uint, error) {
 	tweet := models.Tweet{
 		Text:   tweetDto.Text,
 		UserID: tweetDto.UserID,
+	}
+
+	result := r.db.Create(&tweet)
+
+	if result.Error != nil {
+		return 0, result.Error
+	}
+
+	if err := r.addMentions(&tweet, mentionedUsers); err != nil {
+		return 0, err
+	}
+
+	return tweet.ID, nil
+}
+
+func (r *TweetPostgres) UpdateTweet(tweetDto dto.UpdateTweetDto, mentionedUsers []string) (uint, error) {
+	tweet, err := r.GetTweetById(tweetDto.TweetID)
+
+	if err != nil {
+		return 0, err
+	}
+
+	tweet.Text = tweetDto.Text
+
+	if err := r.addMentions(tweet, mentionedUsers); err != nil {
+		return 0, err
+	}
+
+	if err := r.db.Save(&tweet).Error; err != nil {
+		return 0, err
+	}
+
+	return tweet.ID, nil
+}
+
+func (r *TweetPostgres) addMentions(tweet *models.Tweet, mentionedUsers []string) error {
+	var tweetAuthor *models.User
+
+	if err := r.db.Select("username").First(&tweetAuthor, tweet.UserID).Error; err != nil {
+		return err
 	}
 
 	for _, user := range mentionedUsers {
@@ -33,34 +76,24 @@ func (r *TweetPostgres) CreateTweet(tweetDto dto.CreateTweetDto, mentionedUsers 
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				continue
 			} else {
-				return 0, err
+				return err
 			}
 		}
 		tweet.MentionedUsers = append(tweet.MentionedUsers, &userFromDB)
+
+		message := models.Message{
+			Text: fmt.Sprintf("You was metioned by @%s", tweetAuthor.Username),
+			UserID: userFromDB.ID,
+			AuthorID: tweet.UserID,
+			TweetID: tweet.ID,
+		}
+
+		if err := r.message.AddMessage(&message); err != nil {
+			return err
+		}
 	}
 
-	result := r.db.Create(&tweet)
-	if result.Error != nil {
-		return 0, result.Error
-	}
-
-	return tweet.ID, nil
-}
-
-func (r *TweetPostgres) UpdateTweet(tweetDto dto.UpdateTweetDto) (uint, error) {
-	tweet, err := r.GetTweetById(tweetDto.TweetID)
-
-	if err != nil {
-		return 0, err
-	}
-
-	tweet.Text = tweetDto.Text
-
-	if err := r.db.Save(&tweet).Error; err != nil {
-		return 0, err
-	}
-
-	return tweet.ID, nil
+	return nil
 }
 
 func (r *TweetPostgres) DeleteTweet(tweetId uint) error {
@@ -70,7 +103,7 @@ func (r *TweetPostgres) DeleteTweet(tweetId uint) error {
 func (r *TweetPostgres) GetTweetById(id uint) (*models.Tweet, error) {
 	var tweet *models.Tweet
 
-	result := r.db.Where("id = ?", id).Preload("Comments").Preload("MentionedUsers").First(&tweet)
+	result := r.db.Where("id = ?", id).Preload(clause.Associations).First(&tweet)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -78,8 +111,8 @@ func (r *TweetPostgres) GetTweetById(id uint) (*models.Tweet, error) {
 	return tweet, nil
 }
 
-func (r *TweetPostgres) GetUserTweets(userId uint) ([]*models.Tweet, error) {
-	var tweets []*models.Tweet
+func (r *TweetPostgres) GetUserTweets(userId uint) ([]models.Tweet, error) {
+	var tweets []models.Tweet
 
 	result := r.db.Where("user_id = ?", userId).Find(&tweets)
 	if result.Error != nil {
@@ -109,6 +142,17 @@ func (r *TweetPostgres) LikeTweet(tweetId, userId uint) error {
 	}
 
 	if err := r.db.Model(&tweet).Association("Likes").Append(&user); err != nil {
+		return err
+	}
+
+	message := models.Message{
+		Text: fmt.Sprintf("@%s liked your tweet", user.Username),
+		UserID: tweet.UserID,
+		AuthorID: user.ID,
+		TweetID: tweet.ID,
+	}
+
+	if err := r.message.AddMessage(&message); err != nil {
 		return err
 	}
 

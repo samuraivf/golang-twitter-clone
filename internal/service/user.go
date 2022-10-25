@@ -65,3 +65,11 @@ func (s *UserService) EditProfile(user dto.EditUserDto) error {
 func (s *UserService) AddImage(image string, userId uint) error {
 	return s.repo.AddImage([]byte(image), userId)
 }
+
+func (s *UserService) Subscribe(subscriberId, userId uint) error {
+	return s.repo.Subscribe(subscriberId, userId)
+}
+
+func (s *UserService) Unsubscribe(subscriberId, userId uint) error {
+	return s.repo.Unsubscribe(subscriberId, userId)
+}

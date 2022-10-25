@@ -1,6 +1,7 @@
 package service
 
 import (
+	"regexp"
 	"strings"
 
 	"github.com/samuraivf/twitter-clone/internal/dto"
@@ -10,10 +11,11 @@ import (
 
 type TweetService struct {
 	repo repository.Tweet
+	tag  repository.Tag
 }
 
-func NewTweetService(repo repository.Tweet) *TweetService {
-	return &TweetService{repo}
+func NewTweetService(repo repository.Tweet, tag repository.Tag) *TweetService {
+	return &TweetService{repo, tag}
 }
 
 func (s *TweetService) CreateTweet(tweetDto dto.CreateTweetDto) (uint, error) {
@@ -25,19 +27,81 @@ func (s *TweetService) CreateTweet(tweetDto dto.CreateTweetDto) (uint, error) {
 		}
 	}
 
-	return s.repo.CreateTweet(tweetDto, mentionedUsers)
+	tweetId, err := s.repo.CreateTweet(tweetDto, mentionedUsers)
+
+	if err != nil {
+		return 0, err
+	}
+
+	for _, tag := range tweetDto.Tags {
+		r, err := regexp.Compile("^[a-z0-9]+$")
+
+		if err != nil {
+			return 0, err
+		}
+
+		if r.Match([]byte(tag)) {
+			s.tag.CreateTag(tag)
+
+			err = s.tag.AddTweet(tag, tweetId)
+			if err != nil {
+				return 0, err
+			}
+		}
+	}
+
+	if err != nil {
+		return 0, err
+	}
+
+	return tweetId, nil
 }
 
 func (s *TweetService) GetTweetById(id uint) (*models.Tweet, error) {
 	return s.repo.GetTweetById(id)
 }
 
-func (s *TweetService) GetUserTweets(userId uint) ([]*models.Tweet, error) {
+func (s *TweetService) GetUserTweets(userId uint) ([]models.Tweet, error) {
 	return s.repo.GetUserTweets(userId)
 }
 
 func (s *TweetService) UpdateTweet(tweetDto dto.UpdateTweetDto) (uint, error) {
-	return s.repo.UpdateTweet(tweetDto)
+	var mentionedUsers []string
+
+	for _, letter := range strings.Split(tweetDto.Text, " ") {
+		if letter[0] == byte('@') {
+			mentionedUsers = append(mentionedUsers, letter[1:])
+		}
+	}
+
+	tweetId, err := s.repo.UpdateTweet(tweetDto, mentionedUsers)
+
+	if err != nil {
+		return 0, err
+	}
+
+	for _, tag := range tweetDto.Tags {
+		r, err := regexp.Compile("^[a-z0-9]+$")
+
+		if err != nil {
+			return 0, err
+		}
+
+		if r.Match([]byte(tag)) {
+			s.tag.CreateTag(tag)
+
+			err = s.tag.AddTweet(tag, tweetId)
+			if err != nil {
+				return 0, err
+			}
+		}
+	}
+
+	if err != nil {
+		return 0, err
+	}
+
+	return tweetId, nil
 }
 
 func (s *TweetService) DeleteTweet(tweetId uint) error {

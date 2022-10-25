@@ -15,10 +15,10 @@ const (
 )
 
 const (
-	errUserIsAuthorized = "user is authorized"
-	errInvalidAuthHeader = "invalid Authorization header"
-	errTokenIsEmpty = "token is empty"
-	errUserNotFound = "user not found"
+	errUserIsAuthorized    = "user is authorized"
+	errInvalidAuthHeader   = "invalid Authorization header"
+	errTokenIsEmpty        = "token is empty"
+	errUserNotFound        = "user not found"
 	errInvalidUserDataType = "userData is of invalid type"
 )
 

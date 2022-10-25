@@ -2,6 +2,7 @@ package repository
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/samuraivf/twitter-clone/internal/dto"
 	"github.com/samuraivf/twitter-clone/internal/repository/models"
@@ -10,10 +11,11 @@ import (
 
 type UserPostgres struct {
 	db *gorm.DB
+	message Message
 }
 
-func NewUserPostgres(db *gorm.DB) *UserPostgres {
-	return &UserPostgres{db}
+func NewUserPostgres(db *gorm.DB, message Message) *UserPostgres {
+	return &UserPostgres{db, message}
 }
 
 func (r *UserPostgres) CreateUser(user dto.CreateUserDto) (uint, error) {
@@ -82,6 +84,54 @@ func (r *UserPostgres) AddImage(image []byte, userId uint) error {
 	user.Image = image
 
 	if err = r.db.Save(&user).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *UserPostgres) Subscribe(subscriberId, userId uint) error {
+	var subscriber models.User
+	var user models.User // the user being subscribed to
+
+	if err := r.db.Where("id = ?", subscriberId).Preload("Subscriptions").First(&subscriber).Error; err != nil {
+		return err
+	}
+
+	if err := r.db.First(&user, userId).Error; err != nil {
+		return err
+	}
+
+	if err := r.db.Model(&subscriber).Association("Subscriptions").Append(&user); err != nil {
+		return err
+	}
+
+	message := models.Message{
+		Text: fmt.Sprintf("@%s subscribed to you", subscriber.Username),
+		UserID: user.ID,
+		AuthorID: subscriber.ID,
+	}
+
+	if err := r.message.AddMessage(&message); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *UserPostgres) Unsubscribe(subscriberId, userId uint) error {
+	var subscriber models.User
+	var user models.User // the user being subscribed to
+
+	if err := r.db.Where("id = ?", subscriberId).Preload("Subscriptions").First(&subscriber).Error; err != nil {
+		return err
+	}
+
+	if err := r.db.First(&user, userId).Error; err != nil {
+		return err
+	}
+
+	if err := r.db.Model(&subscriber).Association("Subscriptions").Delete(&user); err != nil {
 		return err
 	}
 

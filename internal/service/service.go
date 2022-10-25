@@ -22,6 +22,8 @@ type User interface {
 	GetUserByUsername(username string) (*models.User, error)
 	EditProfile(user dto.EditUserDto) error
 	AddImage(image string, userId uint) error
+	Subscribe(subscriberId, userId uint) error
+	Unsubscribe(subscriberId, userId uint) error
 }
 
 type Redis interface {
@@ -33,7 +35,7 @@ type Redis interface {
 type Tweet interface {
 	CreateTweet(tweetDto dto.CreateTweetDto) (uint, error)
 	GetTweetById(id uint) (*models.Tweet, error)
-	GetUserTweets(userId uint) ([]*models.Tweet, error)
+	GetUserTweets(userId uint) ([]models.Tweet, error)
 	UpdateTweet(tweetDto dto.UpdateTweetDto) (uint, error)
 	DeleteTweet(tweetId uint) error
 	LikeTweet(tweetId, userId uint) error
@@ -49,12 +51,19 @@ type Comment interface {
 	UnlikeComment(commentId, userId uint) error
 }
 
+type Tag interface {
+	GetTop100Tags() ([]*models.Tag, error)
+	GetTagByName(name string) (*models.Tag, error)
+	GetTagByIdWithTweets(id uint) (*models.Tag, error)
+}
+
 type Service struct {
 	Authorization
 	User
 	Redis
 	Tweet
 	Comment
+	Tag
 }
 
 func NewService(repos *repository.Repository) *Service {
@@ -62,7 +71,8 @@ func NewService(repos *repository.Repository) *Service {
 		Authorization: NewAuthService(),
 		User:          NewUserService(repos.User),
 		Redis:         NewRedisService(repos.Redis),
-		Tweet:         NewTweetService(repos.Tweet),
-		Comment:	   NewCommentService(repos.Comment),
+		Tweet:         NewTweetService(repos.Tweet, repos.Tag),
+		Comment:       NewCommentService(repos.Comment),
+		Tag:           NewTagService(repos.Tag),
 	}
 }

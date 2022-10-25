@@ -33,6 +33,8 @@ func (h *Handler) InitServer() *gin.Engine {
 			user.PUT("/edit-profile", h.editProfile)
 			user.POST("/add-image", h.addImage)
 			user.GET("/:username", h.getUserByUsername)
+			user.POST("/subscribe/:id", h.Subscribe)
+			user.POST("/unsubscribe/:id", h.Unsubscribe)
 		}
 
 		tweet := api.Group("/tweet", h.isAuthorized)
@@ -54,6 +56,13 @@ func (h *Handler) InitServer() *gin.Engine {
 			comment.DELETE("/:id", h.deleteComment)
 			comment.GET("/like/:id", h.likeComment)
 			comment.GET("/unlike/:id", h.unlikeComment)
+		}
+
+		tag := api.Group("/tag", h.isAuthorized)
+		{
+			tag.GET("/top-100", h.getTop100Tags)
+			tag.GET("/with-tweets/:id", h.getTagByIdWithTweets)
+			tag.GET("/:name", h.getTagByName)
 		}
 	}
 

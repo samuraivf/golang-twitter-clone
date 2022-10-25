@@ -16,6 +16,8 @@ type User interface {
 	CreateUser(user dto.CreateUserDto) (uint, error)
 	EditProfile(user dto.EditUserDto) error
 	AddImage(image []byte, userId uint) error
+	Subscribe(subscriberId, userId uint) error
+	Unsubscribe(subscriberId, userId uint) error
 }
 
 type Redis interface {
@@ -29,8 +31,8 @@ type Redis interface {
 type Tweet interface {
 	CreateTweet(tweetDto dto.CreateTweetDto, mentionedUsers []string) (uint, error)
 	GetTweetById(id uint) (*models.Tweet, error)
-	GetUserTweets(userId uint) ([]*models.Tweet, error)
-	UpdateTweet(tweetDto dto.UpdateTweetDto) (uint, error)
+	GetUserTweets(userId uint) ([]models.Tweet, error)
+	UpdateTweet(tweetDto dto.UpdateTweetDto, mentionedUsers []string) (uint, error)
 	DeleteTweet(tweetId uint) error
 	LikeTweet(tweetId, userId uint) error
 	UnlikeTweet(tweetId, userId uint) error
@@ -45,18 +47,37 @@ type Comment interface {
 	UnlikeComment(commentId, userId uint) error
 }
 
+type Tag interface {
+	CreateTag(name string) (uint, error)
+	GetTagByName(name string) (*models.Tag, error)
+	AddTweet(tagName string, tweetId uint) error
+	GetTop100Tags() ([]*models.Tag, error)
+	GetTagByIdWithTweets(id uint) (*models.Tag, error)
+}
+
+type Message interface {
+	AddMessage(message *models.Message) error
+	GetUserMessages(userId uint) ([]*models.Message, error)
+}
+
 type Repository struct {
 	User
 	Redis
 	Tweet
 	Comment
+	Tag
+	Message
 }
 
 func NewRepository(db *gorm.DB, redis *redis.Client) *Repository {
+	message := NewMessagePostgres(db)
+
 	return &Repository{
-		User:  NewUserPostgres(db),
-		Tweet: NewTweetPostgres(db),
-		Redis: NewRedis(redis),
-		Comment: NewCommentPostgres(db),
+		User:    NewUserPostgres(db, message),
+		Tweet:   NewTweetPostgres(db, message),
+		Redis:   NewRedis(redis),
+		Comment: NewCommentPostgres(db, message),
+		Tag:     NewTagPostgres(db),
+		Message: message,
 	}
 }

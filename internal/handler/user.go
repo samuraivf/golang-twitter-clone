@@ -8,10 +8,10 @@ import (
 )
 
 const (
-	errEmptyParamUsername = "empty param username"
-	errCannotFindUser = "cannot find a user"
+	errEmptyParamUsername      = "empty param username"
+	errCannotFindUser          = "cannot find a user"
 	errCannotUpdateUserProfile = "cannot update user profile"
-	errInvalidImage = "invalid image"
+	errInvalidImage            = "invalid image"
 )
 
 func (h *Handler) getUserByUsername(c *gin.Context) {
@@ -69,4 +69,36 @@ func (h *Handler) addImage(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, nil)
+}
+
+func (h *Handler) Subscribe(c *gin.Context) {
+	subscriberId := getUserId(c)
+	userId := getIdParam(c)
+	if subscriberId == 0 || userId == 0 {
+		return
+	}
+
+	err := h.services.User.Subscribe(subscriberId, userId)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, true)
+}
+
+func (h *Handler) Unsubscribe(c *gin.Context) {
+	subscriberId := getUserId(c)
+	userId := getIdParam(c)
+	if subscriberId == 0 || userId == 0 {
+		return
+	}
+
+	err := h.services.User.Unsubscribe(subscriberId, userId)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, true)
 }
