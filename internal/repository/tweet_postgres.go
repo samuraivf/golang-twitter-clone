@@ -125,7 +125,12 @@ func (r *TweetPostgres) addMentions(tweet *models.Tweet, mentionedUsers []string
 }
 
 func (r *TweetPostgres) DeleteTweet(tweetId uint) error {
-	return r.db.Delete(&models.Tweet{}, tweetId).Error
+	err := r.db.Exec("DELETE FROM tag_tweets WHERE tweet_id IN (SELECT id FROM tweets WHERE tweets.id = ?);", tweetId).Error
+	if err != nil {
+		return err
+	}
+
+	return r.db.Exec("DELETE FROM tweets WHERE tweets.id = ?", tweetId).Error
 }
 
 func (r *TweetPostgres) GetTweetById(id uint) (*models.Tweet, error) {
