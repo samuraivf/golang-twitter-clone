@@ -13,10 +13,6 @@ func NewTagService(repo repository.Tag) *TagService {
 	return &TagService{repo}
 }
 
-func (s *TagService) GetTop100Tags() ([]*models.Tag, error) {
-	return s.repo.GetTop100Tags()
-}
-
 func (s *TagService) GetTagByName(name string) (*models.Tag, error) {
 	return s.repo.GetTagByName(name)
 }

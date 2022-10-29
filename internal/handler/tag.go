@@ -10,17 +10,6 @@ const (
 	errInvalidNameParam = "err invalid name param"
 )
 
-func (h *Handler) getTop100Tags(c *gin.Context) {
-	tags, err := h.services.Tag.GetTop100Tags()
-
-	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	c.JSON(http.StatusOK, tags)
-}
-
 func (h *Handler) getTagByName(c *gin.Context) {
 	name := getTagName(c)
 	if name == "" {

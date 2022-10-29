@@ -73,3 +73,7 @@ func (s *UserService) Subscribe(subscriberId, userId uint) error {
 func (s *UserService) Unsubscribe(subscriberId, userId uint) error {
 	return s.repo.Unsubscribe(subscriberId, userId)
 }
+
+func (s *UserService) GetUserMessages(userId uint) ([]*models.Message, error) {
+	return s.repo.GetUserMessages(userId)
+}

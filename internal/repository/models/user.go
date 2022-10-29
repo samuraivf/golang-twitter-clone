@@ -14,5 +14,5 @@ type User struct {
 	MentionedIn   []*Tweet   `json:"mentionedIn" gorm:"many2many:user_mentionedIn;"`
 	Messages 	  []Message  `json:"messages"`
 	Subscriptions []*User    `json:"subscriptions" gorm:"many2many:user_subscriptions;"`
-	Subscribers   []*User    `json:"subscribers" gorm:"many2many:user_subscriptions;"`
+	Subscribers   []*User    `json:"subscribers" gorm:"many2many:user_subscriptions;foreignKey:ID;joinForeignKey:SubscriptionID;"`
 }

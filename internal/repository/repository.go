@@ -18,6 +18,7 @@ type User interface {
 	AddImage(image []byte, userId uint) error
 	Subscribe(subscriberId, userId uint) error
 	Unsubscribe(subscriberId, userId uint) error
+	GetUserMessages(userId uint) ([]*models.Message, error)
 }
 
 type Redis interface {
@@ -51,7 +52,6 @@ type Tag interface {
 	CreateTag(name string) (uint, error)
 	GetTagByName(name string) (*models.Tag, error)
 	AddTweet(tagName string, tweetId uint) error
-	GetTop100Tags() ([]*models.Tag, error)
 	GetTagByIdWithTweets(id uint) (*models.Tag, error)
 }
 

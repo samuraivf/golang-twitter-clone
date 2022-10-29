@@ -35,6 +35,7 @@ func (h *Handler) InitServer() *gin.Engine {
 			user.GET("/:username", h.getUserByUsername)
 			user.POST("/subscribe/:id", h.Subscribe)
 			user.POST("/unsubscribe/:id", h.Unsubscribe)
+			user.GET("/messages", h.getUserMessages)
 		}
 
 		tweet := api.Group("/tweet", h.isAuthorized)
@@ -60,7 +61,6 @@ func (h *Handler) InitServer() *gin.Engine {
 
 		tag := api.Group("/tag", h.isAuthorized)
 		{
-			tag.GET("/top-100", h.getTop100Tags)
 			tag.GET("/with-tweets/:id", h.getTagByIdWithTweets)
 			tag.GET("/:name", h.getTagByName)
 		}

@@ -39,7 +39,35 @@ func (r *TweetPostgres) CreateTweet(tweetDto dto.CreateTweetDto, mentionedUsers 
 		return 0, err
 	}
 
+	if err := r.notifySubscribers(tweet.UserID, tweet.ID); err != nil {
+		return 0, err
+	}
+
 	return tweet.ID, nil
+}
+
+func (r *TweetPostgres) notifySubscribers(authorId, tweetId uint) error {
+	var tweetAuthor *models.User
+
+	if err := r.db.Where("id = ?", authorId).Preload("Subscribers").First(&tweetAuthor).Error; err != nil {
+		return err
+	}
+	
+	for _, subscriber := range tweetAuthor.Subscribers {
+		message := models.Message{
+			Text: fmt.Sprintf("@%s posted a new tweet", tweetAuthor.Username),
+			UserID: subscriber.ID,
+			AuthorID: tweetAuthor.ID,
+			TweetID: tweetId,
+		}
+
+		if err := r.message.AddMessage(&message); err != nil {
+			return err
+		}
+
+	}
+
+	return nil
 }
 
 func (r *TweetPostgres) UpdateTweet(tweetDto dto.UpdateTweetDto, mentionedUsers []string) (uint, error) {

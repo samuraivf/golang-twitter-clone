@@ -19,18 +19,6 @@ func NewTagPostgres(db *gorm.DB) *TagPostgres {
 	return &TagPostgres{db}
 }
 
-func (r *TagPostgres) GetTop100Tags() ([]*models.Tag, error) {
-	var tags = make([]*models.Tag, 0, 100)
-
-	if err := r.db.Limit(100).Preload("Tweets.ID", func(db *gorm.DB) *gorm.DB {
-			return db.Select("ID")
-		}).Find(&tags).Error; err != nil {
-		return nil, err
-	}
-
-	return tags, nil
-}
-
 func (r *TagPostgres) CreateTag(name string) (uint, error) {
 	tag := models.Tag{
 		Name: name,

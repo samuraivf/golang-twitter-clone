@@ -102,3 +102,18 @@ func (h *Handler) Unsubscribe(c *gin.Context) {
 
 	c.JSON(http.StatusOK, true)
 }
+
+func (h *Handler) getUserMessages(c *gin.Context) {
+	userId := getUserId(c)
+	if userId == 0 {
+		return
+	}
+
+	messages, err := h.services.User.GetUserMessages(userId)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, messages)
+}

@@ -7,6 +7,7 @@ import (
 	"github.com/samuraivf/twitter-clone/internal/dto"
 	"github.com/samuraivf/twitter-clone/internal/repository/models"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type UserPostgres struct {
@@ -47,7 +48,7 @@ func (r *UserPostgres) GetUserByEmail(email string) (*models.User, error) {
 
 func (r *UserPostgres) GetUserByUsername(username string) (*models.User, error) {
 	var user *models.User
-	result := r.db.Where("username = ?", username).Preload("Tweets.Likes").Preload("LikedTweets").First(&user)
+	result := r.db.Where("username = ?", username).Preload(clause.Associations).First(&user)
 
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return nil, result.Error
@@ -98,7 +99,7 @@ func (r *UserPostgres) Subscribe(subscriberId, userId uint) error {
 		return err
 	}
 
-	if err := r.db.First(&user, userId).Error; err != nil {
+	if err := r.db.Where("id = ?", userId).First(&user).Error; err != nil {
 		return err
 	}
 
@@ -136,4 +137,8 @@ func (r *UserPostgres) Unsubscribe(subscriberId, userId uint) error {
 	}
 
 	return nil
+}
+
+func (r *UserPostgres) GetUserMessages(userId uint) ([]*models.Message, error) {
+	return r.message.GetUserMessages(userId)
 }
