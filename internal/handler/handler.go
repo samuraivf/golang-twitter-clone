@@ -23,9 +23,13 @@ func (h *Handler) InitServer() *gin.Engine {
 		auth := api.Group("/auth")
 		{
 			auth.POST("/sign-up", h.signUp)
-			auth.POST("/sign-in", h.isUnauthorized, h.signIn)
+			auth.POST("/sign-in", h.isUnauthorized, func(c *gin.Context) {
+				h.signIn(c, h.createTokens)
+			})
 			auth.GET("/logout", h.logout)
-			auth.GET("/refresh", h.refresh)
+			auth.GET("/refresh", func(c *gin.Context) {
+				h.refresh(c, h.createTokens)
+			})
 		}
 
 		user := api.Group("/user", h.isAuthorized)

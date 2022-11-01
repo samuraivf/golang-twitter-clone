@@ -9,6 +9,8 @@ import (
 	"github.com/samuraivf/twitter-clone/internal/service"
 )
 
+type createTokens func(c *gin.Context, username string, userId uint)
+
 func (h *Handler) signUp(c *gin.Context) {
 	var user dto.CreateUserDto
 
@@ -38,7 +40,7 @@ func (h *Handler) signUp(c *gin.Context) {
 	})
 }
 
-func (h *Handler) signIn(c *gin.Context) {
+func (h *Handler) signIn(c *gin.Context, createTokens createTokens) {
 	var user dto.LoginDto
 
 	if err := c.BindJSON(&user); err != nil {
@@ -52,13 +54,13 @@ func (h *Handler) signIn(c *gin.Context) {
 		return
 	}
 
-	h.createTokens(c, userData.Username, userData.ID)
+	createTokens(c, userData.Username, userData.ID)
 }
 
-func (h *Handler) refresh(c *gin.Context) {
+func (h *Handler) refresh(c *gin.Context, createTokens createTokens) {
 	refreshToken, err := c.Cookie("refreshToken")
 
-	if err != nil {
+	if err != nil || refreshToken == "" {
 		newErrorResponse(c, http.StatusBadRequest, errInvalidRefreshToken)
 		return
 	}
@@ -79,13 +81,13 @@ func (h *Handler) refresh(c *gin.Context) {
 		return
 	}
 
-	h.createTokens(c, refreshTokenData.Username, refreshTokenData.UserId)
+	createTokens(c, refreshTokenData.Username, refreshTokenData.UserId)
 }
 
 func (h *Handler) logout(c *gin.Context) {
 	refreshToken, err := c.Cookie("refreshToken")
 
-	if err != nil {
+	if err != nil || refreshToken == "" {
 		newErrorResponse(c, http.StatusBadRequest, errInvalidRefreshToken)
 		return
 	}
@@ -102,6 +104,7 @@ func (h *Handler) logout(c *gin.Context) {
 
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
 	}
 
 	h.setRefreshToken(c, "", -1)
@@ -126,6 +129,7 @@ func (h *Handler) createTokens(c *gin.Context, username string, userId uint) {
 
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
 	}
 
 	h.setRefreshToken(c, refreshTokenData.RefreshToken, int(service.RefreshTokenTTL))

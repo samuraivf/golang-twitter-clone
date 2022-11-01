@@ -8,6 +8,8 @@ import (
 	"github.com/samuraivf/twitter-clone/internal/repository/models"
 )
 
+//go:generate mockgen -source=service.go -destination=mocks/mock.go
+
 type Authorization interface {
 	GenerateAccessToken(username string, userId uint) (string, error)
 	GenerateRefreshToken(username string, userId uint) (*RefreshTokenData, error)
