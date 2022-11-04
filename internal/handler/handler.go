@@ -4,6 +4,9 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/swaggo/gin-swagger"
+	"github.com/swaggo/files"
+	_ "github.com/samuraivf/twitter-clone/docs"
 	"github.com/samuraivf/twitter-clone/internal/service"
 )
 
@@ -17,6 +20,8 @@ func NewHandler(services *service.Service) *Handler {
 
 func (h *Handler) InitServer() *gin.Engine {
 	router := gin.New()
+
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	api := router.Group("/api")
 	{

@@ -16,6 +16,16 @@ import (
 	"github.com/spf13/viper"
 )
 
+// @title           Twitter Clone
+// @version         1.0
+// @description     Application with basic functionality of twitter
+
+// @host      localhost:7000
+// @BasePath  /api/
+
+// @securityDefinitions.apikey  ApiKeyAuth
+// @in header
+// @name Authorization
 func main() {
 	ctx := context.Background()
 	handler, closeRepos := initApplication(ctx)

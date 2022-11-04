@@ -11,6 +11,17 @@ import (
 
 type createTokens func(c *gin.Context, username string, userId uint)
 
+// @Summary SignUp
+// @Tags auth
+// @Description Create account
+// @ID sign-up
+// @Accept json
+// @Produce json
+// @Param input body dto.CreateUserDto true "create user data"
+// @Success 200 {integer} integer 1
+// @Failure 400 {object} ErrorMessage
+// @Failure 500 {obkect} ErrorMessage
+// @Router /auth/sign-up [post]
 func (h *Handler) signUp(c *gin.Context) {
 	var user dto.CreateUserDto
 
@@ -40,6 +51,17 @@ func (h *Handler) signUp(c *gin.Context) {
 	})
 }
 
+// @Summary SignIn
+// @Tags auth
+// @Description Sign in
+// @ID sign-in
+// @Accept json
+// @Produce json
+// @Param input body dto.LoginDto true "login data"
+// @Success 200 {string} string "token"
+// @Failure 400 {object} ErrorMessage
+// @Failure 500 {obkect} ErrorMessage
+// @Router /auth/sign-in [post]
 func (h *Handler) signIn(c *gin.Context, createTokens createTokens) {
 	var user dto.LoginDto
 
@@ -84,6 +106,15 @@ func (h *Handler) refresh(c *gin.Context, createTokens createTokens) {
 	createTokens(c, refreshTokenData.Username, refreshTokenData.UserId)
 }
 
+// @Summary Logout
+// @Tags auth
+// @Description Logout
+// @ID logout
+// @Param cookie header string true "token"
+// @Success 200
+// @Failure 400 {object} ErrorMessage
+// @Failure 500 {obkect} ErrorMessage
+// @Router /auth/logout [get]
 func (h *Handler) logout(c *gin.Context) {
 	refreshToken, err := c.Cookie("refreshToken")
 

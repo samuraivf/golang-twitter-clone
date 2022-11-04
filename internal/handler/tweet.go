@@ -13,6 +13,18 @@ const (
 	errEmptyUserIdParam  = "empty userId param"
 )
 
+// @Summary CreateTweet
+// @Security ApiKeyAuth
+// @Tags tweet
+// @Description Create tweet
+// @ID create-tweet
+// @Accept json
+// @Produce json
+// @Param input body dto.CreateTweetDto true "create tweet data"
+// @Success 200 {integer} integer 1
+// @Failure 400 {object} ErrorMessage
+// @Failure 500 {obkect} ErrorMessage
+// @Router /tweet/create [post]
 func (h *Handler) createTweet(c *gin.Context) {
 	var tweetDto dto.CreateTweetDto
 
@@ -32,6 +44,18 @@ func (h *Handler) createTweet(c *gin.Context) {
 	})
 }
 
+// @Summary UpdateTweet
+// @Security ApiKeyAuth
+// @Tags tweet
+// @Description Update tweet
+// @ID update-tweet
+// @Accept json
+// @Produce json
+// @Param input body dto.UpdateTweetDto true "update tweet data"
+// @Success 200 {integer} integer 1
+// @Failure 400 {object} ErrorMessage
+// @Failure 500 {obkect} ErrorMessage
+// @Router /tweet/update [put]
 func (h *Handler) updateTweet(c *gin.Context) {
 	var tweetDto dto.UpdateTweetDto
 
@@ -51,6 +75,17 @@ func (h *Handler) updateTweet(c *gin.Context) {
 	})
 }
 
+// @Summary LikeTweet
+// @Security ApiKeyAuth
+// @Tags tweet
+// @Description Like tweet
+// @ID like-tweet
+// @Produce json
+// @Param id path string true "tweet id"
+// @Success 200 {boolean} boolean true
+// @Failure 400 {object} ErrorMessage
+// @Failure 500 {obkect} ErrorMessage
+// @Router /tweet/like/{id} [get]
 func (h *Handler) likeTweet(c *gin.Context) {
 	userId := getUserId(c)
 	tweetId := getIdParam(c)
@@ -69,6 +104,17 @@ func (h *Handler) likeTweet(c *gin.Context) {
 	c.JSON(http.StatusOK, true)
 }
 
+// @Summary UnlikeTweet
+// @Security ApiKeyAuth
+// @Tags tweet
+// @Description Unlike tweet
+// @ID unlike-tweet
+// @Produce json
+// @Param id path string true "tweet id"
+// @Success 200 {boolean} boolean true
+// @Failure 400 {object} ErrorMessage
+// @Failure 500 {obkect} ErrorMessage
+// @Router /tweet/unlike/{id} [get]
 func (h *Handler) unlikeTweet(c *gin.Context) {
 	userId := getUserId(c)
 	tweetId := getIdParam(c)
@@ -87,6 +133,17 @@ func (h *Handler) unlikeTweet(c *gin.Context) {
 	c.JSON(http.StatusOK, true)
 }
 
+// @Summary DeleteTweet
+// @Security ApiKeyAuth
+// @Tags tweet
+// @Description Delete tweet by tweet id
+// @ID delete-tweet
+// @Produce json
+// @Param id path string true "tweet id"
+// @Success 200 {integer} integer 1
+// @Failure 400 {object} ErrorMessage
+// @Failure 500 {object} ErrorMessage
+// @Router /tweet/{id} [delete]
 func (h *Handler) deleteTweet(c *gin.Context) {
 	tweetId := getIdParam(c)
 
@@ -104,6 +161,16 @@ func (h *Handler) deleteTweet(c *gin.Context) {
 	c.JSON(http.StatusOK, tweetId)
 }
 
+// @Summary GetTweetById
+// @Security ApiKeyAuth
+// @Tags tweet
+// @Description Get tweet by ID
+// @ID get-tweet-by-id
+// @Produce json
+// @Param id path string true "tweet id"
+// @Success 200 {object} models.Tweet
+// @Failure 404 {object} ErrorMessage
+// @Router /tweet/{id} [get]
 func (h *Handler) getTweetById(c *gin.Context) {
 	tweetId := getIdParam(c)
 
@@ -121,6 +188,17 @@ func (h *Handler) getTweetById(c *gin.Context) {
 	c.JSON(http.StatusOK, tweet)
 }
 
+// @Summary GetUserTweets
+// @Security ApiKeyAuth
+// @Tags tweet
+// @Description Get user tweets by userId
+// @ID get-user-tweets
+// @Produce json
+// @Param userId path string true "user id"
+// @Success 200 {array} models.Tweet
+// @Failure 400 {object} ErrorMessage
+// @Failure 404 {object} ErrorMessage
+// @Router /tweet/user-tweets/{userId} [get]
 func (h *Handler) getUserTweets(c *gin.Context) {
 	userId := c.Param("userId")
 
