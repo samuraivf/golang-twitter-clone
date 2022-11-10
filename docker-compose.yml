@@ -1,0 +1,40 @@
+version: "3.8"
+
+services:
+  twitter-clone:
+    build: ./
+    command: ./wait-for-postgres.sh db ./twitter-clone
+    ports:
+      - 7000:7000
+    depends_on:
+      - db
+      - redis
+    environment:
+      - DB_PASSWORD=postgreSQL
+  
+  db:
+    restart: always
+    image: postgres:latest
+    volumes:
+      - ./.database/postgres/data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=postgreSQL
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=postgres
+    ports:
+      - 5432:5432
+
+  redis:
+    restart: always
+    image: redis:latest
+    command: redis-server --save 20 1 --loglevel warning
+    volumes: 
+      - redis:/data
+    ports:
+      - 6379:6379
+
+volumes:
+  db:
+    driver: local
+  redis:
+    driver: local
