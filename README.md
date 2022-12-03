@@ -1,6 +1,6 @@
 # Twitter Clone (Monolith pattern)
 
-## If you want to look at microservice implementation of this project: Switch to microservice branch
+## If you want to look at microservice implementation of this project: Switch to microservices branch
 ## Build and start an application
 ```
 make build && make run
