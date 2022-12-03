@@ -1,0 +1,10 @@
+port: "7000"
+
+services:
+  auth: ":7001"
+  redis: ":7002"
+  user: ":7003"
+  message: ":7004"
+  comment: ":7005"
+  tweet: ":7006"
+  tag: ":7007"

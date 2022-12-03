@@ -1,0 +1,84 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+package tweet;
+
+option go_package = ".";
+
+service Tweet {
+	rpc CreateTweet(CreateTweetDto) returns (TweetId);
+	rpc GetTweetById(TweetId) returns (TweetData);
+	rpc GetUserTweets(UserIdParam) returns (Tweets);
+	rpc GetTweetsByTagId(TagId) returns (Tweets);
+	rpc UpdateTweet(UpdateTweetDto) returns (TweetId);
+	rpc DeleteTweet(TweetId) returns (google.protobuf.Empty);
+	rpc LikeTweet(TweetUserId) returns (google.protobuf.Empty);
+	rpc UnlikeTweet(TweetUserId) returns (google.protobuf.Empty);
+	rpc AddComment(CommentTweetId) returns (google.protobuf.Empty);
+	rpc DeleteComment(CommentId) returns (google.protobuf.Empty);
+}
+
+message CreateTweetDto {
+    string text = 1;
+    uint64 userId = 2;
+    repeated string tags = 3;
+	string authorUsername = 4;
+}
+
+message UpdateTweetDto {
+	string text = 1;
+	uint64 tweetId = 2;
+	repeated string tags = 3;
+	string authorUsername = 4;
+}
+
+message TweetId {
+    uint64 tweetId = 1;
+}
+
+message TweetData {
+    uint64 id = 1;
+	google.protobuf.Timestamp createdAt = 2;
+	google.protobuf.Timestamp updatedAt = 3;
+    string text = 4;
+    repeated UserId likes = 5;
+    uint64 userId = 6;
+    repeated CommentId comments = 7;
+    repeated UserId mentionedUsers = 8;
+	repeated TagId tags = 9;
+}
+
+message CommentId {
+    uint64 commentId = 1;
+	uint64 tweetId = 2;
+}
+
+message UserId {
+    uint64 tweetId = 1;
+    uint64 userId = 3;
+}
+
+message TagId {
+	uint64 tweetId = 1;
+	uint64 tagId = 2;
+}
+
+message UserIdParam {
+	uint64 userId = 1;
+}
+
+message TweetUserId {
+	uint64 tweetId = 1;
+	uint64 userId = 2;
+}
+
+message Tweets {
+	repeated TweetData tweets = 1;
+}
+
+message CommentTweetId {
+	uint64 commentId = 1;
+	uint64 tweetId = 2;
+}

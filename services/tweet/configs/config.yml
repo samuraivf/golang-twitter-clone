@@ -1,0 +1,14 @@
+port: "7006"
+
+db:
+  host: "0.0.0.0"
+  port: "5436"
+  username: "postgres"
+  dbname: "postgres"
+  password: "postgreSQL"
+  sslmode: "disable"
+
+services:
+  message: ":7004"
+  tag: ":7007"
+  user: ":7003"

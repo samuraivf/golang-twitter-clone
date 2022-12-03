@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/duration.proto";
+
+package redis;
+
+option go_package = ".";
+
+service Redis {
+    rpc SetRefreshToken(SetRefreshTokenParams) returns (google.protobuf.Empty);
+	rpc GetRefreshToken(Key) returns (RefreshToken);
+	rpc DeleteRefreshToken(Key) returns (google.protobuf.Empty);
+}
+
+message SetRefreshTokenParams {
+    string key = 1;
+    string refreshToken = 2;
+    google.protobuf.Duration refreshTokenTTL = 3;
+}
+
+message Key {
+    string key = 1;
+}
+
+message RefreshToken {
+    string refreshToken = 1;
+}

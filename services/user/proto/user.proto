@@ -1,0 +1,73 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+package user;
+
+option go_package = ".";
+
+service User {
+    rpc GetUserByEmail(Email) returns (UserData);
+    rpc ValidateUser(ValidateUserParams) returns (UserData);
+	rpc CreateUser(CreateUserDto) returns (UserId);
+	rpc GetUserByUsername(Username) returns (UserData);
+    rpc GetUserById(UserId) returns (UserData);
+	rpc EditProfile(EditUserDto) returns (google.protobuf.Empty);
+	rpc AddImage(AddImageParams) returns (google.protobuf.Empty);
+	rpc Subscribe(SubscriberUser) returns (google.protobuf.Empty);
+	rpc Unsubscribe(SubscriberUser) returns (google.protobuf.Empty);
+}
+
+message Email {
+    string email = 1;
+}
+
+message CreateUserDto {
+    string username = 1;
+    string password = 2;
+    string name = 3;
+    string email = 4;
+}
+
+message UserId {
+    uint64 userId = 1;
+}
+
+message Username {
+    string username = 1;
+}
+
+message ValidateUserParams {
+    string username = 1;
+    string password = 2;
+}
+
+message AddImageParams {
+    string image = 1;
+    uint64 userId = 2;
+}
+
+message EditUserDto {
+    string name = 1;
+    string email = 2;
+    string description = 3;
+}
+
+message SubscriberUser {
+    uint64 subscriberId = 1;
+    uint64 userId = 2;
+}
+
+message UserData {
+    uint64 id = 1;
+	google.protobuf.Timestamp createdAt = 2;
+	google.protobuf.Timestamp updatedAt = 3;
+	string username = 4;
+	string name = 5;
+	string email = 6;
+	string description = 7;
+	bytes image = 8;
+    repeated UserData subscriptions = 9;
+    repeated UserData subscribers = 10;
+}

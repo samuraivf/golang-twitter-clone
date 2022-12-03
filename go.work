@@ -1,0 +1,12 @@
+go 1.18
+
+use (
+	./services/auth
+	./services/comment
+	./services/gateway
+	./services/message
+	./services/redis
+	./services/tag
+	./services/tweet
+	./services/user
+)

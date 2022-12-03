@@ -1,0 +1,473 @@
+basePath: /api/
+definitions:
+  __.CommentId:
+    properties:
+      commentId:
+        type: integer
+      tweetId:
+        type: integer
+    type: object
+  __.TagId:
+    properties:
+      tagId:
+        type: integer
+      tweetId:
+        type: integer
+    type: object
+  __.TweetData:
+    properties:
+      comments:
+        items:
+          $ref: '#/definitions/__.CommentId'
+        type: array
+      createdAt:
+        $ref: '#/definitions/timestamppb.Timestamp'
+      id:
+        type: integer
+      likes:
+        items:
+          $ref: '#/definitions/__.UserId'
+        type: array
+      mentionedUsers:
+        items:
+          $ref: '#/definitions/__.UserId'
+        type: array
+      tags:
+        items:
+          $ref: '#/definitions/__.TagId'
+        type: array
+      text:
+        type: string
+      updatedAt:
+        $ref: '#/definitions/timestamppb.Timestamp'
+      userId:
+        type: integer
+    type: object
+  __.Tweets:
+    properties:
+      tweets:
+        items:
+          $ref: '#/definitions/__.TweetData'
+        type: array
+    type: object
+  __.UserId:
+    properties:
+      tweetId:
+        type: integer
+      userId:
+        type: integer
+    type: object
+  dto.CreateTweetDto:
+    properties:
+      authorUsername:
+        maxLength: 20
+        minLength: 3
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      text:
+        maxLength: 10000
+        minLength: 1
+        type: string
+      userId:
+        type: integer
+    required:
+    - authorUsername
+    - text
+    - userId
+    type: object
+  dto.CreateUserDto:
+    properties:
+      email:
+        type: string
+      name:
+        maxLength: 20
+        minLength: 3
+        type: string
+      password:
+        maxLength: 30
+        minLength: 8
+        type: string
+      username:
+        maxLength: 15
+        minLength: 3
+        type: string
+    required:
+    - email
+    - name
+    - password
+    - username
+    type: object
+  dto.LoginDto:
+    properties:
+      password:
+        maxLength: 30
+        minLength: 8
+        type: string
+      username:
+        maxLength: 15
+        minLength: 3
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  dto.UpdateTweetDto:
+    properties:
+      authorUsername:
+        maxLength: 20
+        minLength: 3
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      text:
+        maxLength: 10000
+        minLength: 1
+        type: string
+      tweetId:
+        type: integer
+    required:
+    - authorUsername
+    - text
+    - tweetId
+    type: object
+  gateway_internal_handler.ErrorMessage:
+    properties:
+      message:
+        type: string
+    type: object
+  internal_handler.ErrorMessage:
+    properties:
+      message:
+        type: string
+    type: object
+  timestamppb.Timestamp:
+    properties:
+      nanos:
+        description: |-
+          Non-negative fractions of a second at nanosecond resolution. Negative
+          second values with fractions must still have non-negative nanos values
+          that count forward in time. Must be from 0 to 999,999,999
+          inclusive.
+        type: integer
+      seconds:
+        description: |-
+          Represents seconds of UTC time since Unix epoch
+          1970-01-01T00:00:00Z. Must be from 0001-01-01T00:00:00Z to
+          9999-12-31T23:59:59Z inclusive.
+        type: integer
+    type: object
+host: localhost:7000
+info:
+  contact: {}
+  description: Application with basic functionality of twitter
+  title: Twitter Clone
+  version: "1.0"
+paths:
+  /auth/logout:
+    get:
+      description: Logout
+      operationId: logout
+      parameters:
+      - description: token
+        in: header
+        name: cookie
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gateway_internal_handler.ErrorMessage'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: obkect
+      summary: Logout
+      tags:
+      - auth
+  /auth/sign-in:
+    post:
+      consumes:
+      - application/json
+      description: Sign in
+      operationId: sign-in
+      parameters:
+      - description: login data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.LoginDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: token
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gateway_internal_handler.ErrorMessage'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: obkect
+      summary: SignIn
+      tags:
+      - auth
+  /auth/sign-up:
+    post:
+      consumes:
+      - application/json
+      description: Create account
+      operationId: sign-up
+      parameters:
+      - description: create user data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateUserDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gateway_internal_handler.ErrorMessage'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: obkect
+      summary: SignUp
+      tags:
+      - auth
+  /tweet/{id}:
+    delete:
+      description: Delete tweet by tweet id
+      operationId: delete-tweet
+      parameters:
+      - description: tweet id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gateway_internal_handler.ErrorMessage'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gateway_internal_handler.ErrorMessage'
+      security:
+      - ApiKeyAuth: []
+      summary: DeleteTweet
+      tags:
+      - tweet
+    get:
+      description: Get tweet by ID
+      operationId: get-tweet-by-id
+      parameters:
+      - description: tweet id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/__.TweetData'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/gateway_internal_handler.ErrorMessage'
+      security:
+      - ApiKeyAuth: []
+      summary: GetTweetById
+      tags:
+      - tweet
+  /tweet/create:
+    post:
+      consumes:
+      - application/json
+      description: Create tweet
+      operationId: create-tweet
+      parameters:
+      - description: create tweet data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateTweetDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gateway_internal_handler.ErrorMessage'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: obkect
+      security:
+      - ApiKeyAuth: []
+      summary: CreateTweet
+      tags:
+      - tweet
+  /tweet/like/{id}:
+    get:
+      description: Like tweet
+      operationId: like-tweet
+      parameters:
+      - description: tweet id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gateway_internal_handler.ErrorMessage'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: obkect
+      security:
+      - ApiKeyAuth: []
+      summary: LikeTweet
+      tags:
+      - tweet
+  /tweet/unlike/{id}:
+    get:
+      description: Unlike tweet
+      operationId: unlike-tweet
+      parameters:
+      - description: tweet id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gateway_internal_handler.ErrorMessage'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: obkect
+      security:
+      - ApiKeyAuth: []
+      summary: UnlikeTweet
+      tags:
+      - tweet
+  /tweet/update:
+    put:
+      consumes:
+      - application/json
+      description: Update tweet
+      operationId: update-tweet
+      parameters:
+      - description: update tweet data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateTweetDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gateway_internal_handler.ErrorMessage'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: obkect
+      security:
+      - ApiKeyAuth: []
+      summary: UpdateTweet
+      tags:
+      - tweet
+  /tweet/user-tweets/{userId}:
+    get:
+      description: Get user tweets by userId
+      operationId: get-user-tweets
+      parameters:
+      - description: user id
+        in: path
+        name: userId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/__.Tweets'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gateway_internal_handler.ErrorMessage'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/gateway_internal_handler.ErrorMessage'
+      security:
+      - ApiKeyAuth: []
+      summary: GetUserTweets
+      tags:
+      - tweet
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

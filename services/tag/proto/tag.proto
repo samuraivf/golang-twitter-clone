@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+package tag;
+
+option go_package = ".";
+
+service Tag {
+	rpc CreateTag(TagName) returns (TagId);
+	rpc GetTagByName(TagName) returns (TagData);
+	rpc AddTweet(AddTweetParams) returns (google.protobuf.Empty);
+	rpc DeleteTweet(TweetIdParam) returns (google.protobuf.Empty);
+	rpc GetTagById(TagId) returns (TagData);
+}
+
+message TagName {
+    string name = 1;
+}
+
+message TagId {
+    uint64 tagId = 1;
+}
+
+message AddTweetParams {
+    uint64 tagId = 1;
+    uint64 tweetId = 2;
+}
+
+message TagData {
+    uint64 id = 1;
+	google.protobuf.Timestamp createdAt = 2;
+	google.protobuf.Timestamp updatedAt = 3;
+	string name = 4;
+	repeated TweetId tweets = 5;
+}
+
+message TweetId {
+    uint64 tagId = 1;
+    uint64 tweetId = 2;
+}
+
+message TweetIdParam {
+	uint64 tweetId = 1;
+}

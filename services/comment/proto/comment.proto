@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+package comment;
+
+option go_package = ".";
+
+service Comment {
+    rpc CreateComment(CreateCommentDto) returns (CommentId);
+	rpc GetCommentById(CommentId) returns (CommentData);
+	rpc UpdateComment(UpdateCommentDto) returns (CommentId);
+	rpc DeleteComment(CommentId) returns (google.protobuf.Empty);
+	rpc LikeComment(CommentUser) returns (google.protobuf.Empty);
+	rpc UnlikeComment(CommentUser) returns (google.protobuf.Empty);
+}
+
+message CreateCommentDto {
+    string text = 1;
+    uint64 userId = 2;
+    uint64 tweetId = 3;
+    string username = 4;
+    uint64 tweetAuthorId = 5;
+}
+
+message UpdateCommentDto {
+    string text = 1;
+    uint64 commentId = 2;
+}
+
+message CommentId {
+    uint64 commentId = 1;
+}
+
+message CommentUser {
+    uint64 commentId = 1;
+    uint64 userId = 2;
+    string username = 3;
+}
+
+message CommentData {
+    uint64 id = 1;
+	google.protobuf.Timestamp createdAt = 2;
+	google.protobuf.Timestamp updatedAt = 3;
+    string text = 4;
+    repeated UserId likes = 5;
+    uint64 tweetId = 6;
+    uint64 userId = 7;
+}
+
+message UserId {
+    uint64 id = 1;
+	uint64 commentId = 2;
+    uint64 userId = 3;
+}

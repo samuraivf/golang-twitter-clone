@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+package auth;
+
+option go_package = ".";
+
+service Authorization {
+    rpc GenerateAccessToken(UserData) returns (AccessToken);
+	rpc GenerateRefreshToken(UserData) returns (RefreshTokenData);
+	rpc ParseAccessToken(AccessToken) returns (TokenData);
+	rpc ParseRefreshToken(RefreshToken) returns (TokenData);
+    rpc GetRefreshTokenTTL(google.protobuf.Empty) returns (RefreshTokenTTL);
+}
+
+message UserData {
+    string username = 1;
+    uint64 userId = 2;
+}
+
+message RefreshTokenTTL {
+    uint64 RefreshTokenTTL = 1;
+}
+
+message AccessToken {
+    string accessToken = 1;
+}
+
+message RefreshToken {
+    string refreshToken = 1;
+}
+
+message RefreshTokenData {
+    string refreshToken = 1;
+    string id = 2;
+}
+
+message TokenData {
+    string id = 1;
+    string username = 2;
+    uint64 userId = 3;
+}

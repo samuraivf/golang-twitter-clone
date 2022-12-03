@@ -1,4 +1,4 @@
-# Twitter Clone
+# Twitter Clone (Microservice pattern)
 ## Build and start an application
 ```
 make build && make run

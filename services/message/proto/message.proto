@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+package message;
+
+option go_package = ".";
+
+service Message {
+    rpc AddMessage(MessageData) returns (google.protobuf.Empty);
+    rpc GetUserMessages(UserId) returns (Messages);
+}
+
+message MessageData {
+    uint64 id = 1;
+	google.protobuf.Timestamp createdAt = 2;
+	google.protobuf.Timestamp updatedAt = 3;
+    string text = 4;
+    uint64 userId = 5;
+    uint64 authorId = 6;
+    uint64 tweetId = 7;
+}
+
+message Messages {
+    repeated MessageData messages = 1;
+}
+
+message UserId {
+    uint64 userId = 1;
+}
