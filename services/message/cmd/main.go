@@ -35,7 +35,7 @@ func main() {
 	db, err := repository.NewPostgresDB(config)
 
 	if err != nil {
-		logrus.Fatalf("failed to connect to redis: %s", err.Error())
+		logrus.Fatalf("failed to connect to postgres: %s", err.Error())
 	}
 
 	messageRepo := repository.NewMessagePostgres(db)
