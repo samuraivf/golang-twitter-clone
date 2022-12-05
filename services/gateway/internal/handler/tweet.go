@@ -36,10 +36,8 @@ func (h *Handler) createTweet(c *gin.Context) {
 		return
 	}
 
-	tweetConnection := services.ConnectTweetGrpc()
-	defer tweetConnection.Close()
-
-	tweetClient := tweetService.NewTweetClient(tweetConnection)
+	tweetClient, closeTweet := services.GetTweetClient()
+	defer closeTweet()
 
 	tweetID, err := tweetClient.CreateTweet(c, &tweetService.CreateTweetDto{
 		Text: tweetDto.Text,
@@ -77,10 +75,8 @@ func (h *Handler) updateTweet(c *gin.Context) {
 		return
 	}
 
-	tweetConnection := services.ConnectTweetGrpc()
-	defer tweetConnection.Close()
-
-	tweetClient := tweetService.NewTweetClient(tweetConnection)
+	tweetClient, closeTweet := services.GetTweetClient()
+	defer closeTweet()
 
 	tweetID, err := tweetClient.UpdateTweet(c, &tweetService.UpdateTweetDto{
 		Text: tweetDto.Text,
@@ -112,21 +108,17 @@ func (h *Handler) updateTweet(c *gin.Context) {
 func (h *Handler) likeTweet(c *gin.Context) {
 	userId := getUserId(c)
 	tweetId := getIdParam(c)
-
 	if userId == 0 || tweetId == 0 {
 		return
 	}
 
-	tweetConnection := services.ConnectTweetGrpc()
-	defer tweetConnection.Close()
-
-	tweetClient := tweetService.NewTweetClient(tweetConnection)
+	tweetClient, closeTweet := services.GetTweetClient()
+	defer closeTweet()
 
 	_, err := tweetClient.LikeTweet(c, &tweetService.TweetUserId{
 		TweetId: uint64(tweetId),
 		UserId: uint64(userId),
 	})
-
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -149,21 +141,16 @@ func (h *Handler) likeTweet(c *gin.Context) {
 func (h *Handler) unlikeTweet(c *gin.Context) {
 	userId := getUserId(c)
 	tweetId := getIdParam(c)
-
 	if userId == 0 || tweetId == 0 {
 		return
 	}
 
-	tweetConnection := services.ConnectTweetGrpc()
-	defer tweetConnection.Close()
-
-	tweetClient := tweetService.NewTweetClient(tweetConnection)
-
+	tweetClient, closeTweet := services.GetTweetClient()
+	defer closeTweet()
 	_, err := tweetClient.UnlikeTweet(c, &tweetService.TweetUserId{
 		TweetId: uint64(tweetId),
 		UserId: uint64(userId),
 	})
-
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -185,20 +172,16 @@ func (h *Handler) unlikeTweet(c *gin.Context) {
 // @Router /tweet/{id} [delete]
 func (h *Handler) deleteTweet(c *gin.Context) {
 	tweetId := getIdParam(c)
-
 	if tweetId == 0 {
 		return
 	}
 
-	tweetConnection := services.ConnectTweetGrpc()
-	defer tweetConnection.Close()
-
-	tweetClient := tweetService.NewTweetClient(tweetConnection)
+	tweetClient, closeTweet := services.GetTweetClient()
+	defer closeTweet()
 
 	_, err := tweetClient.DeleteTweet(c, &tweetService.TweetId{
 		TweetId: uint64(tweetId),
 	})
-
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -219,20 +202,16 @@ func (h *Handler) deleteTweet(c *gin.Context) {
 // @Router /tweet/{id} [get]
 func (h *Handler) getTweetById(c *gin.Context) {
 	tweetId := getIdParam(c)
-
 	if tweetId == 0 {
 		return
 	}
 
-	tweetConnection := services.ConnectTweetGrpc()
-	defer tweetConnection.Close()
-
-	tweetClient := tweetService.NewTweetClient(tweetConnection)
+	tweetClient, closeTweet := services.GetTweetClient()
+	defer closeTweet()
 
 	tweet, err := tweetClient.GetTweetById(c, &tweetService.TweetId{
 		TweetId: uint64(tweetId),
 	})
-
 	if err != nil {
 		newErrorResponse(c, http.StatusNotFound, err.Error())
 		return
@@ -254,28 +233,23 @@ func (h *Handler) getTweetById(c *gin.Context) {
 // @Router /tweet/user-tweets/{userId} [get]
 func (h *Handler) getUserTweets(c *gin.Context) {
 	userId := c.Param("userId")
-
 	if userId == "" {
 		newErrorResponse(c, http.StatusBadRequest, errEmptyUserIdParam)
 		return
 	}
 
 	userIdUint, err := strconv.ParseUint(userId, 10, 64)
-
 	if err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	tweetConnection := services.ConnectTweetGrpc()
-	defer tweetConnection.Close()
-
-	tweetClient := tweetService.NewTweetClient(tweetConnection)
+	tweetClient, closeTweet := services.GetTweetClient()
+	defer closeTweet()
 
 	tweets, err := tweetClient.GetUserTweets(c, &tweetService.UserIdParam{
 		UserId: userIdUint,
 	})
-
 	if err != nil {
 		newErrorResponse(c, http.StatusNotFound, err.Error())
 		return

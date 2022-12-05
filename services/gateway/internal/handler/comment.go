@@ -17,10 +17,8 @@ const (
 func (h *Handler) createComment(c *gin.Context) {
 	var commentDto dto.CreateCommentDto
 
-	connection := services.ConnectCommentGrpc()
-	defer connection.Close()
-
-	commentClient := commentService.NewCommentClient(connection)
+	commentClient, closeComment := services.GetCommentClient()
+	defer closeComment()
 
 	if err := c.BindJSON(&commentDto); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, errInvalidInputBody)
@@ -48,10 +46,8 @@ func (h *Handler) getCommentById(c *gin.Context) {
 		return
 	}
 
-	connection := services.ConnectCommentGrpc()
-	defer connection.Close()
-
-	commentClient := commentService.NewCommentClient(connection)
+	commentClient, closeComment := services.GetCommentClient()
+	defer closeComment()
 
 	comment, err := commentClient.GetCommentById(c, &commentService.CommentId{
 		CommentId: uint64(id),
@@ -72,10 +68,8 @@ func (h *Handler) updateComment(c *gin.Context) {
 		return
 	}
 
-	connection := services.ConnectCommentGrpc()
-	defer connection.Close()
-
-	commentClient := commentService.NewCommentClient(connection)
+	commentClient, closeComment := services.GetCommentClient()
+	defer closeComment()
 
 	id, err := commentClient.UpdateComment(c, &commentService.UpdateCommentDto{
 		Text: commentDto.Text,
@@ -95,10 +89,8 @@ func (h *Handler) deleteComment(c *gin.Context) {
 		return
 	}
 
-	connection := services.ConnectCommentGrpc()
-	defer connection.Close()
-
-	commentClient := commentService.NewCommentClient(connection)
+	commentClient, closeComment := services.GetCommentClient()
+	defer closeComment()
 
 	_, err := commentClient.DeleteComment(c, &commentService.CommentId{
 		CommentId: uint64(id),
@@ -114,21 +106,17 @@ func (h *Handler) deleteComment(c *gin.Context) {
 func (h *Handler) likeComment(c *gin.Context) {
 	userId := getUserId(c)
 	commentId := getCommentId(c)
-
 	if userId == 0 || commentId == 0 {
 		return
 	}
 
-	connection := services.ConnectCommentGrpc()
-	defer connection.Close()
-
-	commentClient := commentService.NewCommentClient(connection)
+	commentClient, closeComment := services.GetCommentClient()
+	defer closeComment()
 
 	_, err := commentClient.LikeComment(c, &commentService.CommentUser{
 		CommentId: uint64(commentId),
 		UserId: uint64(userId),
 	})
-
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -140,21 +128,17 @@ func (h *Handler) likeComment(c *gin.Context) {
 func (h *Handler) unlikeComment(c *gin.Context) {
 	userId := getUserId(c)
 	commentId := getCommentId(c)
-
 	if userId == 0 || commentId == 0 {
 		return
 	}
 
-	connection := services.ConnectCommentGrpc()
-	defer connection.Close()
-
-	commentClient := commentService.NewCommentClient(connection)
+	commentClient, closeComment := services.GetCommentClient()
+	defer closeComment()
 
 	_, err := commentClient.UnlikeComment(c, &commentService.CommentUser{
 		CommentId: uint64(commentId),
 		UserId: uint64(userId),
 	})
-
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -165,14 +149,12 @@ func (h *Handler) unlikeComment(c *gin.Context) {
 
 func getCommentId(c *gin.Context) uint {
 	id := c.Param("id")
-
 	if id == "" {
 		newErrorResponse(c, http.StatusBadRequest, errEmptyCommentIdParam)
 		return 0
 	}
 
 	commentIdUint, err := strconv.ParseUint(id, 10, 64)
-
 	if err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return 0

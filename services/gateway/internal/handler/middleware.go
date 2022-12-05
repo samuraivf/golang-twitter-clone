@@ -27,7 +27,6 @@ const (
 func (h *Handler) isUnauthorized(c *gin.Context) {
 	header := c.GetHeader(authorizationHeader)
 	_, err := c.Cookie("refreshToken")
-
 	if header != "" || err == nil {
 		newErrorResponse(c, http.StatusBadRequest, errUserIsAuthorized)
 		return
@@ -36,28 +35,23 @@ func (h *Handler) isUnauthorized(c *gin.Context) {
 
 func (h *Handler) isAuthorized(c *gin.Context) {
 	header := c.GetHeader(authorizationHeader)
-
 	if header == "" {
 		newErrorResponse(c, http.StatusUnauthorized, errInvalidAuthHeader)
 		return
 	}
 
 	headerParts := strings.Split(header, " ")
-
 	if headerParts[0] != "Bearer" || len(headerParts) != 2 {
 		newErrorResponse(c, http.StatusUnauthorized, errInvalidAuthHeader)
 		return
 	}
-
 	if len(headerParts[1]) == 0 {
 		newErrorResponse(c, http.StatusUnauthorized, errTokenIsEmpty)
 		return
 	}
 
-	connection := services.ConnectAuthGrpc()
-	defer connection.Close()
-
-	authClient := authService.NewAuthorizationClient(connection)
+	authClient, closeAuth := services.GetAuthClient()
+	defer closeAuth()
 
 	tokenData, err := authClient.ParseAccessToken(c, &authService.AccessToken{
 		AccessToken: headerParts[1],
@@ -72,13 +66,11 @@ func (h *Handler) isAuthorized(c *gin.Context) {
 
 func getUserData(c *gin.Context) (*authService.TokenData, error) {
 	userData, ok := c.Get(userDataCtx)
-
 	if !ok {
 		return nil, errors.New(errUserNotFound)
 	}
 
 	tokenData, ok := userData.(*authService.TokenData)
-
 	if !ok {
 		return nil, errors.New(errInvalidUserDataType)
 	}

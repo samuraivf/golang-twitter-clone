@@ -21,10 +21,8 @@ func (h *Handler) getTagByName(c *gin.Context) {
 		return
 	}
 
-	tagConnection := services.ConnectTagGrpc()
-	defer tagConnection.Close()
-
-	tagClient := tagService.NewTagClient(tagConnection)
+	tagClient, closeTag := services.GetTagClient()
+	defer closeTag()
 
 	tag, err := tagClient.GetTagByName(c, &tagService.TagName{
 		Name: name,
@@ -43,15 +41,11 @@ func (h *Handler) getTagByIdWithTweets(c *gin.Context) {
 		return
 	}
 
-	tagConnection := services.ConnectTagGrpc()
-	defer tagConnection.Close()
+	tagClient, closeTag := services.GetTagClient()
+	defer closeTag()
 
-	tagClient := tagService.NewTagClient(tagConnection)
-
-	tweetConnection := services.ConnectTweetGrpc()
-	defer tweetConnection.Close()
-
-	tweetClient := tweetService.NewTweetClient(tweetConnection)
+	tweetClient, closeTweet := services.GetTweetClient()
+	defer closeTweet()
 
 	tag, err := tagClient.GetTagById(c, &tagService.TagId{
 		TagId: uint64(id),
@@ -64,7 +58,6 @@ func (h *Handler) getTagByIdWithTweets(c *gin.Context) {
 	tweets, err := tweetClient.GetTweetsByTagId(c, &tweetService.TagId{
 		TagId: uint64(id),
 	})
-
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -89,7 +82,6 @@ func (h *Handler) getTagByIdWithTweets(c *gin.Context) {
 
 func getTagName(c *gin.Context) string {
 	name := c.Param("name")
-
 	if name == "" {
 		newErrorResponse(c, http.StatusBadRequest, errInvalidNameParam)
 		return name

@@ -20,21 +20,17 @@ const (
 
 func (h *Handler) getUserByUsername(c *gin.Context) {
 	username := c.Param("username")
-
 	if username == "" {
 		newErrorResponse(c, http.StatusBadRequest, errEmptyParamUsername)
 		return
 	}
 
-	userConnection := services.ConnectUserGrpc()
-	defer userConnection.Close()
-
-	userClient := userService.NewUserClient(userConnection)
+	userClient, closeUser := services.GetUserClient()
+	defer closeUser()
 
 	user, err := userClient.GetUserByUsername(c, &userService.Username{
 		Username: username,
 	})
-
 	if err != nil {
 		newErrorResponse(c, http.StatusBadRequest, errCannotFindUser)
 	}
@@ -50,17 +46,14 @@ func (h *Handler) editProfile(c *gin.Context) {
 		return
 	}
 
-	userConnection := services.ConnectUserGrpc()
-	defer userConnection.Close()
-
-	userClient := userService.NewUserClient(userConnection)
+	userClient, closeUser := services.GetUserClient()
+	defer closeUser()
 
 	_, err := userClient.EditProfile(c, &userService.EditUserDto{
 		Name: user.Name,
 		Email: user.Email,
 		Description: user.Description,
 	})
-
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, errCannotUpdateUserProfile)
 		return
@@ -71,7 +64,6 @@ func (h *Handler) editProfile(c *gin.Context) {
 
 func (h *Handler) addImage(c *gin.Context) {
 	data, err := getUserData(c)
-
 	if err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
@@ -83,15 +75,14 @@ func (h *Handler) addImage(c *gin.Context) {
 		return
 	}
 
-	userConnection := services.ConnectUserGrpc()
-	defer userConnection.Close()
+	userClient, closeUser := services.GetUserClient()
+	defer closeUser()
 
-	userClient := userService.NewUserClient(userConnection)
-
-	if _, err := userClient.AddImage(c, &userService.AddImageParams{
+	_, err = userClient.AddImage(c, &userService.AddImageParams{
 		Image: image.Image,
 		UserId: data.UserId,
-	}); err != nil {
+	})
+	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -106,10 +97,8 @@ func (h *Handler) Subscribe(c *gin.Context) {
 		return
 	}
 
-	userConnection := services.ConnectUserGrpc()
-	defer userConnection.Close()
-
-	userClient := userService.NewUserClient(userConnection)
+	userClient, closeUser := services.GetUserClient()
+	defer closeUser()
 
 	_, err := userClient.Subscribe(c, &userService.SubscriberUser{
 		SubscriberId: uint64(subscriberId),
@@ -130,10 +119,8 @@ func (h *Handler) Unsubscribe(c *gin.Context) {
 		return
 	}
 
-	userConnection := services.ConnectUserGrpc()
-	defer userConnection.Close()
-
-	userClient := userService.NewUserClient(userConnection)
+	userClient, closeUser := services.GetUserClient()
+	defer closeUser()
 
 	_, err := userClient.Unsubscribe(c, &userService.SubscriberUser{
 		SubscriberId: uint64(subscriberId),
@@ -153,10 +140,8 @@ func (h *Handler) getUserMessages(c *gin.Context) {
 		return
 	}
 	
-	messageConnection := services.ConnectMessageGrpc()
-	defer messageConnection.Close()
-
-	messageClient := messageService.NewMessageClient(messageConnection)
+	messageClient, closeMessage := services.GetMessageClient()
+	defer closeMessage()
 
 	messages, err := messageClient.GetUserMessages(c, &messageService.UserId{
 		UserId: uint64(userId),

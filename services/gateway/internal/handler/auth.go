@@ -32,10 +32,8 @@ type createTokens func(c *gin.Context, username string, userId uint)
 func (h *Handler) signUp(c *gin.Context) {
 	var user dto.CreateUserDto
 
-	connection := services.ConnectUserGrpc()
-	defer connection.Close()
-
-	userClient := userService.NewUserClient(connection)
+	userClient, closeUser := services.GetUserClient()
+	defer closeUser()
 
 	if err := c.BindJSON(&user); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, errInvalidInputBody)
@@ -58,7 +56,6 @@ func (h *Handler) signUp(c *gin.Context) {
 		Name: user.Name,
 		Email: user.Email,
 	})
-
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -83,10 +80,8 @@ func (h *Handler) signUp(c *gin.Context) {
 func (h *Handler) signIn(c *gin.Context, createTokens createTokens) {
 	var user dto.LoginDto
 
-	connection := services.ConnectUserGrpc()
-	defer connection.Close()
-
-	userClient := userService.NewUserClient(connection)
+	userClient, closeUser := services.GetUserClient()
+	defer closeUser()
 
 	if err := c.BindJSON(&user); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, errInvalidInputBody)
@@ -107,35 +102,28 @@ func (h *Handler) signIn(c *gin.Context, createTokens createTokens) {
 
 func (h *Handler) refresh(c *gin.Context, createTokens createTokens) {
 	refreshToken, err := c.Cookie("refreshToken")
-
 	if err != nil || refreshToken == "" {
 		newErrorResponse(c, http.StatusBadRequest, errInvalidRefreshToken)
 		return
 	}
 
-	authConnection := services.ConnectAuthGrpc()
-	defer authConnection.Close()
-
-	authClient := authService.NewAuthorizationClient(authConnection)
+	authClient, closeAuth := services.GetAuthClient()
+	defer closeAuth()
 
 	refreshTokenData, err := authClient.ParseRefreshToken(c, &authService.RefreshToken{
 		RefreshToken: refreshToken,
 	})
-
 	if err != nil {
 		h.setRefreshToken(c, "", -1)
 		newErrorResponse(c, http.StatusUnauthorized, err.Error())
 		return
 	}
 
-	redisConnection := services.ConnectRedisGrpc()
-	defer redisConnection.Close()
-
-	redisClient := redisService.NewRedisClient(redisConnection)
+	redisClient, closeRedis := services.GetRedisClient()
+	defer closeRedis()
 
 	key := fmt.Sprintf("%s:%s", refreshTokenData.Username, refreshTokenData.Id)
 	_, err = redisClient.GetRefreshToken(c.Request.Context(), &redisService.Key{Key: key})
-
 	if err != nil {
 		newErrorResponse(c, http.StatusUnauthorized, errTokenDoesNotExist)
 		return
@@ -155,34 +143,27 @@ func (h *Handler) refresh(c *gin.Context, createTokens createTokens) {
 // @Router /auth/logout [get]
 func (h *Handler) logout(c *gin.Context) {
 	refreshToken, err := c.Cookie("refreshToken")
-
 	if err != nil || refreshToken == "" {
 		newErrorResponse(c, http.StatusBadRequest, errInvalidRefreshToken)
 		return
 	}
 
-	authConnection := services.ConnectAuthGrpc()
-	defer authConnection.Close()
-
-	authClient := authService.NewAuthorizationClient(authConnection)
+	authClient, closeAuth := services.GetAuthClient()
+	defer closeAuth()
 
 	refreshTokenData, err := authClient.ParseRefreshToken(c, &authService.RefreshToken{
 		RefreshToken: refreshToken,
 	})
-
 	if err != nil {
 		newErrorResponse(c, http.StatusBadRequest, errInvalidRefreshToken)
 		return
 	}
 
-	redisConnection := services.ConnectRedisGrpc()
-	defer redisConnection.Close()
-
-	redisClient := redisService.NewRedisClient(redisConnection)
+	redisClient, closeRedis := services.GetRedisClient()
+	defer closeRedis()
 
 	key := fmt.Sprintf("%s:%s", refreshTokenData.Username, refreshTokenData.Id)
 	_, err = redisClient.DeleteRefreshToken(c.Request.Context(), &redisService.Key{Key: key})
-
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -193,10 +174,8 @@ func (h *Handler) logout(c *gin.Context) {
 }
 
 func (h *Handler) createTokens(c *gin.Context, username string, userId uint) {
-	authConnection := services.ConnectAuthGrpc()
-	defer authConnection.Close()
-
-	authClient := authService.NewAuthorizationClient(authConnection)
+	authClient, closeAuth := services.GetAuthClient()
+	defer closeAuth()
 
 	accessToken, err := authClient.GenerateAccessToken(c, &authService.UserData{
 		Username: username,
@@ -216,10 +195,8 @@ func (h *Handler) createTokens(c *gin.Context, username string, userId uint) {
 		return
 	}
 
-	redisConnection := services.ConnectRedisGrpc()
-	defer redisConnection.Close()
-
-	redisClient := redisService.NewRedisClient(redisConnection)
+	redisClient, closeRedis := services.GetRedisClient()
+	defer closeRedis()
 
 	refreshTokenTTL, _ := authClient.GetRefreshTokenTTL(c, new(emptypb.Empty))
 
@@ -229,7 +206,6 @@ func (h *Handler) createTokens(c *gin.Context, username string, userId uint) {
 		RefreshToken: refreshTokenData.RefreshToken,
 		RefreshTokenTTL: durationpb.New(time.Duration(refreshTokenTTL.RefreshTokenTTL)),
 	})
-
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
