@@ -215,10 +215,7 @@ func (r *CommentPostgres) UnlikeComment(commentId, userId uint) error {
 				return err
 			}
 
-			err = tx.Commit().Error
-			if err != nil {
-				return err
-			}
+			return tx.Commit().Error
 		}
 	}
 
