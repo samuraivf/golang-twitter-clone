@@ -9,8 +9,8 @@ import (
 
 	"gateway/internal/handler"
 	"gateway/internal/server"
+	"gateway/configs"
 	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 )
 
 // @title           Twitter Clone
@@ -29,7 +29,7 @@ func main() {
 
 	server := new(server.Server)
 	go func() {
-		if err := server.Run(viper.GetString("port"), handler.InitServer()); err != http.ErrServerClosed {
+		if err := server.Run(configs.GetPort(), handler.InitServer()); err != http.ErrServerClosed {
 			logrus.Fatalf("failed to start the server: %s", err.Error())
 		}
 	}()
@@ -49,17 +49,11 @@ func main() {
 func initApplication(ctx context.Context) (*handler.Handler) {
 	logrus.SetFormatter(&logrus.TextFormatter{})
 
-	if err := initConfig(); err != nil {
+	if err := configs.InitConfig(); err != nil {
 		logrus.Fatalf("error initializing configs: %s", err.Error())
 	}
 
 	handler := handler.NewHandler()
 
 	return handler
-}
-
-func initConfig() error {
-	viper.AddConfigPath("configs")
-	viper.SetConfigName("config")
-	return viper.ReadInConfig()
 }

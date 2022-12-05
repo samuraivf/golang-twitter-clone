@@ -8,28 +8,24 @@ import (
 	"os/signal"
 	"redis/internal/repo"
 	"redis/internal/service"
+	"redis/configs"
 	"syscall"
 
 	pb "redis/proto"
 
 	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 )
 
 func main() {
-	if err := initConfig(); err != nil {
+	if err := configs.InitConfig(); err != nil {
 		logrus.Fatalf("error initializing configs: %s", err.Error())
 	}
 
-	port := viper.GetString("port")
+	port := configs.GetPort()
+	redisConfig := configs.GetRedisConfig()
 
-	config := repository.RedisConfig{
-		Host: viper.GetString("redis.host"),
-		Port: viper.GetString("redis.port"),
-	}
-
-	redisClient, err := repository.NewRedisClient(context.Background(), config)
+	redisClient, err := repository.NewRedisClient(context.Background(), *redisConfig)
 
 	if err != nil {
 		logrus.Fatalf("failed to connect to redis: %s", err.Error())
@@ -76,10 +72,4 @@ func main() {
 	}
 
 	logrus.Print("tcp server is stopped")
-}
-
-func initConfig() error {
-	viper.AddConfigPath("configs")
-	viper.SetConfigName("config")
-	return viper.ReadInConfig()
 }

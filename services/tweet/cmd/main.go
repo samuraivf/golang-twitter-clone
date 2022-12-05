@@ -3,6 +3,7 @@ package main
 import (
 	"tweet/internal/repo"
 	"tweet/internal/service"
+	"tweet/configs"
 	"fmt"
 	"net"
 	"os"
@@ -12,27 +13,18 @@ import (
 	pb "tweet/proto"
 
 	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 )
 
 func main() {
-	if err := initConfig(); err != nil {
+	if err := configs.InitConfig(); err != nil {
 		logrus.Fatalf("error initializing configs: %s", err.Error())
 	}
 
-	port := viper.GetString("port")
+	port := configs.GetPort()
+	postgresConfig := configs.GetPostgresConfig()
 
-	config := repository.PostgresConfig{
-		Host:     viper.GetString("db.host"),
-		Port:     viper.GetString("db.port"),
-		Username: viper.GetString("db.username"),
-		Password: viper.GetString("db.password"),
-		DBName:   viper.GetString("db.dbname"),
-		SSLMode:  viper.GetString("db.sslmode"),
-	}
-
-	db, err := repository.NewPostgresDB(config)
+	db, err := repository.NewPostgresDB(*postgresConfig)
 
 	if err != nil {
 		logrus.Fatalf("failed to connect to postgres: %s", err.Error())
@@ -85,10 +77,4 @@ func main() {
 	}
 
 	logrus.Print("tcp server is stopped")
-}
-
-func initConfig() error {
-	viper.AddConfigPath("configs")
-	viper.SetConfigName("config")
-	return viper.ReadInConfig()
 }
