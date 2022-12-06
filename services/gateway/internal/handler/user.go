@@ -1,12 +1,13 @@
 package handler
 
 import (
+	"net/http"
+
 	"gateway/internal/services"
 	"gateway/internal/dto"
+
 	userService "user/proto"
 	messageService "message/proto"
-
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 )

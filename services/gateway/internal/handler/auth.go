@@ -2,10 +2,11 @@ package handler
 
 import (
 	"fmt"
-	"gateway/internal/dto"
-	"gateway/internal/services"
 	"net/http"
 	"time"
+	
+	"gateway/internal/dto"
+	"gateway/internal/services"
 
 	authService "auth/proto"
 	redisService "redis/proto"

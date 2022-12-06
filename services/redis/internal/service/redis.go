@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"redis/internal/repo"
+	
 	pb "redis/proto"
 
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -24,7 +25,6 @@ func (s *RedisService) SetRefreshToken(ctx context.Context, params *pb.SetRefres
 
 func (s *RedisService) GetRefreshToken(ctx context.Context, key *pb.Key) (*pb.RefreshToken, error) {
 	token, err := s.repo.GetRefreshToken(ctx, key.Key)
-
 	if err != nil {
 		return nil, err
 	}

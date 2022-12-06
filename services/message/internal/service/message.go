@@ -1,8 +1,9 @@
 package service
 
 import (
-	repository "message/internal/repo"
 	"message/internal/repo/models"
+	
+	repository "message/internal/repo"
 	pb "message/proto"
 
 	"golang.org/x/net/context"
@@ -33,7 +34,6 @@ func (s *MessageService) AddMessage(ctx context.Context, message *pb.MessageData
 
 func (s *MessageService) GetUserMessages(ctx context.Context, userId *pb.UserId) (*pb.Messages, error) {
 	messageModels, err := s.repo.GetUserMessages(uint(userId.UserId))
-
 	if err != nil {
 		return new(pb.Messages), err
 	}

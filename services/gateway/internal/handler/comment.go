@@ -4,10 +4,12 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/gin-gonic/gin"
 	"gateway/internal/dto"
 	"gateway/internal/services"
+	
 	commentService "comment/proto"
+	
+	"github.com/gin-gonic/gin"
 )
 
 const (

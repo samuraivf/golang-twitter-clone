@@ -5,6 +5,7 @@ import (
 
 	"tag/internal/repo"
 	"tag/internal/repo/models"
+	
 	pb "tag/proto"
 
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -22,7 +23,6 @@ func NewTagService(repo repository.Tag) *TagService {
 
 func (s *TagService) CreateTag(ctx context.Context, name *pb.TagName) (*pb.TagId, error) {
 	id, err := s.repo.CreateTag(name.Name)
-
 	if err != nil {
 		return new(pb.TagId), err
 	}
@@ -32,7 +32,6 @@ func (s *TagService) CreateTag(ctx context.Context, name *pb.TagName) (*pb.TagId
 
 func (s *TagService) GetTagByName(ctx context.Context, name *pb.TagName) (*pb.TagData, error) {
 	tagModel, err := s.repo.GetTagByName(name.Name)
-
 	if err != nil {
 		return new(pb.TagData), err
 	}
@@ -42,7 +41,6 @@ func (s *TagService) GetTagByName(ctx context.Context, name *pb.TagName) (*pb.Ta
 
 func (s *TagService) GetTagById(ctx context.Context, id *pb.TagId) (*pb.TagData, error) {
 	tagModel, err := s.repo.GetTagById(uint(id.TagId))
-
 	if err != nil {
 		return new(pb.TagData), err
 	}

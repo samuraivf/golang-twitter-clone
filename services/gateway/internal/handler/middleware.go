@@ -2,13 +2,14 @@ package handler
 
 import (
 	"errors"
-	"gateway/internal/services"
 	"net/http"
 	"strings"
-
-	"github.com/gin-gonic/gin"
-
+	
+	"gateway/internal/services"
+	
 	authService "auth/proto"
+	
+	"github.com/gin-gonic/gin"
 )
 
 const (

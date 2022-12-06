@@ -4,11 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
-
-	messageService "message/proto"
+	
+	"user/internal/connections"
 	"user/dto"
 	"user/internal/repo/models"
-
+	
+	messageService "message/proto"
+	
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -39,8 +41,8 @@ func (r *UserPostgres) CreateUser(user dto.CreateUserDto) (uint, error) {
 		Email:    user.Email,
 		Password: user.Password,
 	}
-	result := r.db.Create(&userModel)
 
+	result := r.db.Create(&userModel)
 	if result.Error != nil {
 		return 0, result.Error
 	}
@@ -50,8 +52,8 @@ func (r *UserPostgres) CreateUser(user dto.CreateUserDto) (uint, error) {
 
 func (r *UserPostgres) GetUserByEmail(email string) (*models.User, error) {
 	var user *models.User
-	result := r.db.Where("email = ?", email).First(&user)
 
+	result := r.db.Where("email = ?", email).First(&user)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return nil, result.Error
 	}
@@ -61,8 +63,8 @@ func (r *UserPostgres) GetUserByEmail(email string) (*models.User, error) {
 
 func (r *UserPostgres) GetUserByUsername(username string) (*models.User, error) {
 	var user *models.User
-	result := r.db.Where("username = ?", username).Preload(clause.Associations).First(&user)
 
+	result := r.db.Where("username = ?", username).Preload(clause.Associations).First(&user)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return nil, result.Error
 	}
@@ -72,8 +74,8 @@ func (r *UserPostgres) GetUserByUsername(username string) (*models.User, error) 
 
 func (r *UserPostgres) GetUserById(id uint) (*models.User, error) {
 	var user *models.User
-	result := r.db.First(&user, id)
 
+	result := r.db.First(&user, id)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return nil, result.Error
 	}
@@ -83,7 +85,6 @@ func (r *UserPostgres) GetUserById(id uint) (*models.User, error) {
 
 func (r *UserPostgres) EditProfile(user dto.EditUserDto) error {
 	userFromDb, err := r.GetUserByEmail(user.Email)
-
 	if err != nil {
 		return err
 	}
@@ -100,8 +101,8 @@ func (r *UserPostgres) EditProfile(user dto.EditUserDto) error {
 
 func (r *UserPostgres) AddImage(image []byte, userId uint) error {
 	var user models.User
-	err := r.db.First(&user, userId).Error
 
+	err := r.db.First(&user, userId).Error
 	if err != nil {
 		return err
 	}
@@ -116,10 +117,8 @@ func (r *UserPostgres) AddImage(image []byte, userId uint) error {
 }
 
 func (r *UserPostgres) Subscribe(subscriberId, userId uint) error {
-	connection := ConnectMessageGrpc()
-	defer connection.Close()
-
-	messageClient := messageService.NewMessageClient(connection)
+	messageClient, closeMessage := connections.GetMessageClient()
+	defer closeMessage()
 
 	var subscriber models.User
 	var user models.User // the user being subscribed to
@@ -151,7 +150,7 @@ func (r *UserPostgres) Subscribe(subscriberId, userId uint) error {
 
 func (r *UserPostgres) Unsubscribe(subscriberId, userId uint) error {
 	var subscriber models.User
-	var user models.User // the user being subscribed to
+	var user models.User // the user being unsubscribed to
 
 	if err := r.db.Where("id = ?", subscriberId).Preload("Subscriptions").First(&subscriber).Error; err != nil {
 		return err

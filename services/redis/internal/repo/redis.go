@@ -58,14 +58,12 @@ func (r *RedisRepository) DeleteUserRefreshTokens(ctx context.Context, keys []st
 
 func (r *RedisRepository) SetRefreshToken(ctx context.Context, key, refreshToken string, TTL time.Duration) error {
 	userTokens, err := r.GetUserRefreshTokens(ctx, fmt.Sprintf("*%s*", strings.Split(key, ":")[0]))
-
 	if err != nil {
 		return err
 	}
 
 	if len(userTokens) > 5 {
 		err := r.DeleteUserRefreshTokens(ctx, userTokens)
-
 		if err != nil {
 			return err
 		}
@@ -76,7 +74,6 @@ func (r *RedisRepository) SetRefreshToken(ctx context.Context, key, refreshToken
 
 func (r *RedisRepository) GetRefreshToken(ctx context.Context, key string) (string, error) {
 	refreshToken, err := r.redis.Get(ctx, key).Result()
-
 	if err != nil {
 		return "", err
 	}

@@ -1,10 +1,11 @@
 package handler
 
 import (
+	_ "gateway/docs"
+	
 	"github.com/gin-gonic/gin"
 	"github.com/swaggo/gin-swagger"
 	"github.com/swaggo/files"
-	_ "gateway/docs"
 )
 
 type Handler struct {}

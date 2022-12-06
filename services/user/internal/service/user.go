@@ -7,6 +7,7 @@ import (
 	"user/dto"
 	"user/internal/repo"
 	"user/internal/repo/models"
+	
 	pb "user/proto"
 
 	"golang.org/x/crypto/bcrypt"
@@ -17,17 +18,6 @@ import (
 var (
 	ErrInvalidPassword = errors.New("invalid password")
 )
-
-// type User interface {
-// 	GetUserByEmail(email *pb.Email) (*pb.UserData, error)
-// 	ValidateUser(params *pb.ValidateUserParams) (*pb.UserData, error)
-// 	CreateUser(user *pb.CreateUserDto) (*pb.UserId, error)
-// 	GetUserByUsername(username *pb.Username) (*pb.UserData, error)
-// 	EditProfile(user *pb.EditUserDto) (*emptypb.Empty, error)
-// 	AddImage(params *pb.AddImageParams) (*emptypb.Empty, error)
-// 	Subscribe(params *pb.SubscriberUser) (*emptypb.Empty, error)
-// 	Unsubscribe(params *pb.SubscriberUser) (*emptypb.Empty, error)
-// }
 
 type UserService struct {
 	pb.UnimplementedUserServer
@@ -40,7 +30,6 @@ func NewUserService(repo repository.User) *UserService {
 
 func (s *UserService) CreateUser(ctx context.Context, user *pb.CreateUserDto) (*pb.UserId, error) {
 	passwordHash, err := generatePasswordHash(user.Password)
-
 	if err != nil {
 		return new(pb.UserId), err
 	}
@@ -55,7 +44,6 @@ func (s *UserService) CreateUser(ctx context.Context, user *pb.CreateUserDto) (*
 	}
 
 	userId, err := s.repo.CreateUser(userDto)
-
 	if err != nil {
 		return new(pb.UserId), err
 	}
@@ -69,7 +57,6 @@ func generatePasswordHash(password string) ([]byte, error) {
 
 func (s *UserService) GetUserByEmail(ctx context.Context, email *pb.Email) (*pb.UserData, error) {
 	user, err := s.repo.GetUserByEmail(email.Email)
-
 	if err != nil {
 		return new(pb.UserData), err
 	}
@@ -79,7 +66,6 @@ func (s *UserService) GetUserByEmail(ctx context.Context, email *pb.Email) (*pb.
 
 func (s *UserService) GetUserByUsername(ctx context.Context, username *pb.Username) (*pb.UserData, error) {
 	user, err := s.repo.GetUserByUsername(username.Username)
-
 	if err != nil {
 		return new(pb.UserData), err
 	}
@@ -89,7 +75,6 @@ func (s *UserService) GetUserByUsername(ctx context.Context, username *pb.Userna
 
 func (s *UserService) GetUserById(ctx context.Context, userId *pb.UserId) (*pb.UserData, error) {
 	user, err := s.repo.GetUserById(uint(userId.UserId))
-
 	if err != nil {
 		return new(pb.UserData), err
 	}
@@ -103,7 +88,6 @@ func (s *UserService) getUserWithPassword(username string) (*models.User, error)
 
 func (s *UserService) ValidateUser(ctx context.Context, params *pb.ValidateUserParams) (*pb.UserData, error) {
 	user, err := s.getUserWithPassword(params.Username)
-
 	if err != nil {
 		return new(pb.UserData), err
 	}

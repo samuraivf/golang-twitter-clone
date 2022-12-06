@@ -1,8 +1,9 @@
 package repository
 
 import (
-	"tweet/internal/repo/models"
 	"fmt"
+	
+	"tweet/internal/repo/models"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"

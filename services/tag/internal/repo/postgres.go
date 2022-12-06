@@ -1,8 +1,9 @@
 package repository
 
 import (
-	"tag/internal/repo/models"
 	"fmt"
+	
+	"tag/internal/repo/models"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"

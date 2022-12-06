@@ -5,12 +5,14 @@ import (
 	"regexp"
 	"strings"
 
-	tagService "tag/proto"
 	"tweet/dto"
+	"tweet/internal/connections"
 	"tweet/internal/repo"
 	"tweet/internal/repo/models"
-	pb "tweet/proto"
 
+	pb "tweet/proto"
+	tagService "tag/proto"
+	
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -41,7 +43,6 @@ func (s *TweetService) CreateTweet(ctx context.Context, tweetDto *pb.CreateTweet
 	}
 
 	tweetId, err := s.repo.CreateTweet(tweetData, mentionedUsers)
-
 	if err != nil {
 		return new(pb.TweetId), err
 	}
@@ -51,7 +52,6 @@ func (s *TweetService) CreateTweet(ctx context.Context, tweetDto *pb.CreateTweet
 
 func (s *TweetService) GetTweetById(ctx context.Context, id *pb.TweetId) (*pb.TweetData, error) {
 	tweet, err := s.repo.GetTweetById(uint(id.TweetId))
-
 	if err != nil {
 		return new(pb.TweetData), err
 	}
@@ -61,7 +61,6 @@ func (s *TweetService) GetTweetById(ctx context.Context, id *pb.TweetId) (*pb.Tw
 
 func (s *TweetService) GetUserTweets(ctx context.Context, userId *pb.UserIdParam) (*pb.Tweets, error) {
 	tweets, err := s.repo.GetUserTweets(uint(userId.UserId))
-
 	if err != nil {
 		return new(pb.Tweets), err
 	}
@@ -94,7 +93,6 @@ func (s *TweetService) UpdateTweet(ctx context.Context, tweetDto *pb.UpdateTweet
 	}
 
 	tweetId, err := s.repo.UpdateTweet(tweetData, mentionedUsers)
-
 	if err != nil {
 		return new(pb.TweetId), err
 	}
@@ -104,15 +102,12 @@ func (s *TweetService) UpdateTweet(ctx context.Context, tweetDto *pb.UpdateTweet
 
 func (s *TweetService) DeleteTweet(ctx context.Context, tweetId *pb.TweetId) (*emptypb.Empty, error) {
 	err := s.repo.DeleteTweet(uint(tweetId.TweetId))
-
 	if err != nil {
 		return new(emptypb.Empty), err
 	}
 
-	connection := ConnectTagGrpc()
-	defer connection.Close()
-
-	tagClient := tagService.NewTagClient(connection)
+	tagClient, closeTag := connections.GetTagClient()
+	defer closeTag()
 
 	_, err = tagClient.DeleteTweet(ctx, &tagService.TweetIdParam{
 		TweetId: tweetId.TweetId,
@@ -139,7 +134,6 @@ func (s *TweetService) DeleteComment(ctx context.Context, params *pb.CommentId) 
 
 func (s *TweetService) GetTweetsByTagId(ctx context.Context, tagId *pb.TagId) (*pb.Tweets, error) {
 	tweets, err := s.repo.GetTweetsByTagId(uint(tagId.TagId))
-
 	if err != nil {
 		return new(pb.Tweets), err
 	}
@@ -156,14 +150,11 @@ func (s *TweetService) GetTweetsByTagId(ctx context.Context, tagId *pb.TagId) (*
 }
 
 func (s *TweetService) addTags(tags []string, tweetId uint) (*pb.TweetId, error) {
-	connection := ConnectTagGrpc()
-	defer connection.Close()
-
-	tagClient := tagService.NewTagClient(connection)
+	tagClient, closeTag := connections.GetTagClient()
+	defer closeTag()
 
 	for _, tag := range tags {
 		r, err := regexp.Compile("^[a-z0-9]+$")
-
 		if err != nil {
 			return new(pb.TweetId), err
 		}
@@ -179,7 +170,6 @@ func (s *TweetService) addTags(tags []string, tweetId uint) (*pb.TweetId, error)
 
 			if err != nil {
 				pbTagId, err := tagClient.CreateTag(ctx, &tagService.TagName{Name: tag})
-
 				if err != nil {
 					return new(pb.TweetId), err
 				}
@@ -193,13 +183,11 @@ func (s *TweetService) addTags(tags []string, tweetId uint) (*pb.TweetId, error)
 				TagId: tagId,
 				TweetId: uint64(tweetId),
 			})
-
 			if err != nil {
 				return new(pb.TweetId), err
 			}
 
 			err = s.repo.AddTag(uint(tagId), tweetId)
-
 			if err != nil {
 				return new(pb.TweetId), err
 			}

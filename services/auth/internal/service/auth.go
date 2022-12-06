@@ -57,7 +57,6 @@ func (s *AuthService) GenerateAccessToken(context context.Context, userData *pb.
 	})
 
 	token, err := accessToken.SignedString([]byte(jwtAccessKey))
-
 	if err != nil {
 		return new(pb.AccessToken), err
 	}
@@ -83,7 +82,6 @@ func (s *AuthService) GenerateRefreshToken(context context.Context, userData *pb
 	})
 
 	token, err := refreshToken.SignedString([]byte(jwtRefreshKey))
-
 	if err != nil {
 		return new(pb.RefreshTokenData), err
 	}
@@ -99,7 +97,6 @@ func (s *AuthService) ParseAccessToken(context context.Context, accessToken *pb.
 
 		return []byte(jwtAccessKey), nil
 	})
-
 	if err != nil {
 		return new(pb.TokenData), err
 	}
@@ -124,7 +121,6 @@ func (s *AuthService) ParseRefreshToken(context context.Context, refreshToken *p
 
 		return []byte(jwtRefreshKey), nil
 	})
-
 	if err != nil {
 		return new(pb.TokenData), err
 	}
