@@ -18,7 +18,7 @@ func GetPort() string {
 
 func GetRedisConfig() *repository.RedisConfig {
 	return &repository.RedisConfig{
-		Host:     viper.GetString("db.host"),
-		Port:     viper.GetString("db.port"),
+		Host:     viper.GetString("redis.host"),
+		Port:     viper.GetString("redis.port"),
 	}
 }
