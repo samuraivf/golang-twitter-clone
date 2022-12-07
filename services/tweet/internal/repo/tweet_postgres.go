@@ -226,20 +226,26 @@ func (r *TweetPostgres) DeleteTweet(tweetId uint) error {
 		tx.Rollback()
 		return err
 	}
-
+	
 	err = tx.Exec("DELETE FROM comment_ids WHERE tweet_id = ?", tweetId).Error
 	if err != nil {
 		tx.Rollback()
 		return err
 	}
-
+	
 	err = tx.Exec("DELETE FROM user_ids WHERE tweet_id = ?", tweetId).Error
 	if err != nil {
 		tx.Rollback()
 		return err
 	}
 
-	err = r.db.Delete(&models.Tweet{}, tweetId).Error
+	err = tx.Exec("DELETE FROM mentioned_user_ids WHERE tweet_id = ?", tweetId).Error
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	
+	err = tx.Delete(&models.Tweet{}, tweetId).Error
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -272,11 +278,19 @@ func (r *TweetPostgres) GetUserTweets(userId uint) ([]models.Tweet, error) {
 
 func (r *TweetPostgres) GetTweetsByTagId(tagId uint) ([]models.Tweet, error) {
 	var tweets []models.Tweet
+	var tweetIds []models.TagId
+	var ids []uint
 
-	result := r.db.Exec(
-		"SELECT * FROM tweets WHERE tweets.id IN (SELECT tweet_id FROM tag_ids WHERE tag_id = ?);",
-		tagId,
-	).Find(&tweets)
+	result := r.db.Select("tweet_id").Where("tag_id = ?", tagId).Find(&tweetIds)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	for _, tweetId := range tweetIds {
+		ids = append(ids, tweetId.TweetID)
+	}
+
+	result = r.db.Find(&tweets, ids)
 	if result.Error != nil {
 		return nil, result.Error
 	}
