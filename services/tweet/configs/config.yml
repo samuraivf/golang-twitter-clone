@@ -1,7 +1,7 @@
 port: "7006"
 
 db:
-  host: "0.0.0.0"
+  host: "db"
   port: "5436"
   username: "postgres"
   dbname: "postgres"

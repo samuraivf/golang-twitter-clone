@@ -1,0 +1,8 @@
+version: "3.8"
+
+services:
+  twitter-clone-auth:
+    build: ./
+    command: ./twitter-clone-auth
+    ports:
+      - 7001:7001

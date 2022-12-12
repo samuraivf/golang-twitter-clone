@@ -1,0 +1,8 @@
+version: "3.8"
+
+services:
+  twitter-clone-gateway:
+    build: ./
+    command: ./twitter-clone-gateway
+    ports:
+      - 7000:7000

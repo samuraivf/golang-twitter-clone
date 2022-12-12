@@ -1,0 +1,26 @@
+version: "3.8"
+
+services:
+  twitter-clone-tweet:
+    build: ./
+    command: ./wait-for-postgres.sh db ./twitter-clone-tweet
+    ports:
+      - 7006:7006
+    depends_on:
+      - db
+  
+  db:
+    restart: always
+    image: postgres:latest
+    volumes:
+      - ./.database/postgres/data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=postgreSQL
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=postgres
+    ports:
+      - 5436:5432
+
+volumes:
+  db:
+    driver: local
