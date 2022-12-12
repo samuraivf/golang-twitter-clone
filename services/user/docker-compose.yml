@@ -1,0 +1,22 @@
+version: "3.8"
+
+services:
+  twitter-clone-user:
+    build: 
+      context: ../../
+      dockerfile: services/user/Dockerfile
+    command: services/user/wait-for-postgres.sh db services/user/twitter-clone-user
+    ports:
+      - 7003:7003
+    depends_on:
+      - db
+  
+  db:
+    restart: always
+    image: postgres:latest
+    environment:
+      - POSTGRES_PASSWORD=postgreSQL
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=postgres
+    ports:
+      - 5433:5432
