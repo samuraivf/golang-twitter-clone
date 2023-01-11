@@ -2,7 +2,16 @@ version: "3.8"
 
 services:
   twitter-clone-auth:
-    build: ./
-    command: ./twitter-clone-auth
+    build: 
+      context: ../../
+      dockerfile: services/auth/Dockerfile
+    command: services/auth/twitter-clone-auth
     ports:
       - 7001:7001
+    networks:
+      - twitter-clone
+
+networks: 
+  twitter-clone:
+    name: twitter-clone
+    external: true

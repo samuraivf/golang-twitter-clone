@@ -2,12 +2,17 @@ version: "3.8"
 
 services:
   twitter-clone-redis:
-    build: ./
-    command: ./twitter-clone-redis
+    build: 
+      context: ../../
+      dockerfile: services/redis/Dockerfile
+    command: services/redis/twitter-clone-redis
     ports:
       - 7002:7002
     depends_on:
       - redis
+    networks:
+      - twitter-clone
+      - redis-internal
 
   redis:
     restart: always
@@ -17,7 +22,16 @@ services:
       - redis:/data
     ports:
       - 6379:6379
+    networks:
+      - redis-internal
 
 volumes:
   redis:
     driver: local
+
+networks: 
+  twitter-clone:
+    name: twitter-clone
+    external: true
+  redis-internal:
+    name: redis-internal

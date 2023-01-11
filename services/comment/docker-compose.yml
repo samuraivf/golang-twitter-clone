@@ -2,12 +2,17 @@ version: "3.8"
 
 services:
   twitter-clone-comment:
-    build: ./
-    command: ./wait-for-postgres.sh db ./twitter-clone-comment
+    build: 
+      context: ../../
+      dockerfile: services/comment/Dockerfile
+    command: services/comment/wait-for-postgres.sh db services/comment/twitter-clone-comment
     ports:
       - 7005:7005
     depends_on:
       - db
+    networks:
+      - twitter-clone
+      - comment-internal
   
   db:
     restart: always
@@ -20,7 +25,16 @@ services:
       - POSTGRES_DB=postgres
     ports:
       - 5435:5432
+    networks:
+      - comment-internal
 
 volumes:
   db:
     driver: local
+
+networks: 
+  twitter-clone:
+    name: twitter-clone
+    external: true
+  comment-internal:
+    name: comment-internal

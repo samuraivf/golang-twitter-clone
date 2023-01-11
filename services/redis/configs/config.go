@@ -7,7 +7,7 @@ import (
 )
 
 func InitConfig() error {
-	viper.AddConfigPath("configs")
+	viper.AddConfigPath("services/redis/configs")
 	viper.SetConfigName("config")
 	return viper.ReadInConfig()
 }

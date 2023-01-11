@@ -9,4 +9,4 @@ db:
   sslmode: "disable"
 
 services:
-  message: ":7004"
+  message: "twitter-clone-message:7004"

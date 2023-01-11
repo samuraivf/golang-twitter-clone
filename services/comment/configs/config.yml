@@ -2,12 +2,12 @@ port: "7005"
 
 db:
   host: "db"
-  port: "5435"
+  port: "5432"
   username: "postgres"
   dbname: "postgres"
   password: "postgreSQL"
   sslmode: "disable"
 
 services:
-  message: ":7004"
-  tweet: ":7006"
+  message: "twitter-clone-message:7004"
+  tweet: "twitter-clone-tweet:7006"

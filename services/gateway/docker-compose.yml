@@ -2,7 +2,15 @@ version: "3.8"
 
 services:
   twitter-clone-gateway:
-    build: ./
-    command: ./twitter-clone-gateway
+    build: 
+      context: ../../
+      dockerfile: services/gateway/Dockerfile
+    command: services/gateway/twitter-clone-gateway
     ports:
       - 7000:7000
+    networks:
+      - twitter-clone
+
+networks: 
+  twitter-clone:
+    name: twitter-clone

@@ -5,14 +5,17 @@ ENV GOPATH=/
 COPY ./ ./
 
 RUN apt-get update
-RUN apt-get -y install postgresql-client
 
-RUN chmod +x ../../wait-for-postgres.sh
+COPY services/ services
 
-COPY go.mod go.sum ./
-RUN go mod download && go mod verify
+COPY go.work .
 
-RUN go build -o twitter-clone-gateway ./cmd/main.go
+COPY services/gateway/go.mod services/gateway
+COPY services/gateway/go.sum services/gateway
+
+RUN cd services/gateway && go mod tidy && go mod download && go clean --modcache
+
+RUN cd services/gateway && go build -o twitter-clone-gateway ./cmd/main.go
 
 EXPOSE 7000
 

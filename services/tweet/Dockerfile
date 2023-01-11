@@ -2,17 +2,20 @@ FROM golang:latest
 
 ENV GOPATH=/
 
-COPY ./ ./
-
 RUN apt-get update
 RUN apt-get -y install postgresql-client
 
-RUN chmod +x ../../wait-for-postgres.sh
+COPY services/ services
 
-COPY go.mod go.sum ./
-RUN go mod download && go mod verify
+RUN chmod +x services/tweet/wait-for-postgres.sh
 
-RUN go build -o twitter-clone-tweet ./cmd/main.go
+COPY go.work .
+
+COPY services/tweet/go.mod services/tweet
+
+RUN cd services/tweet && go mod tidy && go mod download && go clean --modcache
+
+RUN cd services/tweet && go build -o twitter-clone-tweet ./cmd/main.go
 
 EXPOSE 7006
 

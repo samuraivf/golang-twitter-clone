@@ -2,13 +2,13 @@ port: "7006"
 
 db:
   host: "db"
-  port: "5436"
+  port: "5432"
   username: "postgres"
   dbname: "postgres"
   password: "postgreSQL"
   sslmode: "disable"
 
 services:
-  message: ":7004"
-  tag: ":7007"
-  user: ":7003"
+  message: "twitter-clone-message:7004"
+  tag: "twitter-clone-tag:7007"
+  user: "twitter-clone-user:7003"

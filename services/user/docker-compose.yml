@@ -1,4 +1,4 @@
-version: "3.8"
+version: "3"
 
 services:
   twitter-clone-user:
@@ -10,13 +10,31 @@ services:
       - 7003:7003
     depends_on:
       - db
+    networks:
+      - twitter-clone
+      - user-internal
   
   db:
     restart: always
     image: postgres:latest
+    volumes:
+      - ./.database/postgres/data:/var/lib/postgresql/data
     environment:
       - POSTGRES_PASSWORD=postgreSQL
       - POSTGRES_USER=postgres
       - POSTGRES_DB=postgres
     ports:
       - 5433:5432
+    networks:
+      - user-internal
+
+volumes:
+  db:
+    driver: local
+
+networks: 
+  twitter-clone:
+    name: twitter-clone
+    external: true
+  user-internal:
+    name: user-internal

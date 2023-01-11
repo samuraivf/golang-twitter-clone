@@ -1,10 +1,10 @@
 port: "7000"
 
 services:
-  auth: ":7001"
-  redis: ":7002"
-  user: ":7003"
-  message: ":7004"
-  comment: ":7005"
-  tweet: ":7006"
-  tag: ":7007"
+  auth: "twitter-clone-auth:7001"
+  redis: "twitter-clone-redis:7002"
+  user: "twitter-clone-user:7003"
+  message: "twitter-clone-message:7004"
+  comment: "twitter-clone-comment:7005"
+  tweet: "twitter-clone-tweet:7006"
+  tag: "twitter-clone-tag:7007"
