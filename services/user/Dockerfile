@@ -20,4 +20,4 @@ RUN cd services/user && go build -o twitter-clone-user ./cmd/main.go
 
 EXPOSE 7003
 
-CMD [ "./main" ]
+CMD [ "services/user/twitter-clone-user" ]

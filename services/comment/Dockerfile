@@ -19,4 +19,4 @@ RUN cd services/comment && go build -o twitter-clone-comment ./cmd/main.go
 
 EXPOSE 7005
 
-CMD [ "./main" ]
+CMD [ "services/comment/twitter-clone-comment" ]

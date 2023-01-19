@@ -1,8 +1,8 @@
 port: "7004"
 
 db:
-  host: "db"
-  port: "5432"
+  host: "db-message"
+  port: "5434"
   username: "postgres"
   dbname: "postgres"
   password: "postgreSQL"

@@ -19,4 +19,4 @@ RUN cd services/gateway && go build -o twitter-clone-gateway ./cmd/main.go
 
 EXPOSE 7000
 
-CMD [ "./main" ]
+CMD [ "services/gateway/twitter-clone-gateway" ]

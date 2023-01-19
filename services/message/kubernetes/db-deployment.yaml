@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.17.0 (HEAD)
+  labels:
+    io.kompose.service: db-message
+  name: db-message
+spec:
+  replicas: 1
+  strategy: {}
+  selector:
+    matchLabels:
+      io.kompose.service: db-message
+  template:
+    metadata:
+      labels:
+        io.kompose.service: db-message
+    spec:
+      containers:
+      - env:
+        - name: POSTGRES_DB
+          valueFrom:
+            configMapKeyRef:
+              name: postgres-configmap-message
+              key: POSTGRES_DB
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret-message
+              key: POSTGRES_PASSWORD
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret-message
+              key: POSTGRES_USER
+        image: postgres:latest
+        name: db-message
+        ports:
+        - containerPort: 5432
+        resources: 
+          limits:
+            cpu: 0.2
+            memory: 100M
+      restartPolicy: Always
+status: {}

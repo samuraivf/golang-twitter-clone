@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.17.0 (HEAD)
+  labels:
+    io.kompose.service: db-comment
+  name: db-comment
+spec:
+  ports:
+  - name: "5435"
+    port: 5435
+    targetPort: 5432
+  selector:
+    io.kompose.service: db-comment
+status:
+  loadBalancer: {}

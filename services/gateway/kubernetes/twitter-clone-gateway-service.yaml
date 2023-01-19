@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.17.0 (HEAD)
+  labels:
+    io.kompose.service: twitter-clone-gateway
+  name: twitter-clone-gateway
+spec:
+  type: NodePort
+  selector:
+    io.kompose.service: twitter-clone-gateway
+  ports:
+  - name: "7000"
+    port: 7000
+    targetPort: 7000
+    nodePort: 30100
+status:
+  loadBalancer: {}

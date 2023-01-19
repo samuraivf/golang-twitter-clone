@@ -19,4 +19,4 @@ RUN cd services/tweet && go build -o twitter-clone-tweet ./cmd/main.go
 
 EXPOSE 7006
 
-CMD [ "./main" ]
+CMD [ "services/tweet/twitter-clone-tweet" ]

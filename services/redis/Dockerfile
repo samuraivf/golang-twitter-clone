@@ -18,4 +18,4 @@ RUN cd services/redis && go build -o twitter-clone-redis ./cmd/main.go
 
 EXPOSE 7002
 
-CMD [ "./main" ]
+CMD [ "services/redis/twitter-clone-redis" ]

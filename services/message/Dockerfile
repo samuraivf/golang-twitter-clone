@@ -19,4 +19,4 @@ RUN cd services/message && go build -o twitter-clone-message ./cmd/main.go
 
 EXPOSE 7004
 
-CMD [ "./main" ]
+CMD [ "services/message/twitter-clone-message" ]

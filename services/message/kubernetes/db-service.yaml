@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.17.0 (HEAD)
+  labels:
+    io.kompose.service: db-message
+  name: db-message
+spec:
+  ports:
+  - name: "5434"
+    port: 5434
+    targetPort: 5432
+  selector:
+    io.kompose.service: db-message
+status:
+  loadBalancer: {}

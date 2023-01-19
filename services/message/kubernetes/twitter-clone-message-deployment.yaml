@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.17.0 (HEAD)
+  labels:
+    io.kompose.service: twitter-clone-message
+  name: twitter-clone-message
+spec:
+  replicas: 1
+  strategy: {}
+  selector:
+    matchLabels:
+      io.kompose.service: twitter-clone-message
+  template:
+    metadata:
+      labels:
+        io.kompose.service: twitter-clone-message
+    spec:
+      containers:
+      - image: twitter-clone-message
+        name: twitter-clone-message
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 7004
+        resources: 
+          limits:
+            cpu: 0.2
+            memory: 100M
+      restartPolicy: Always
+status: {}

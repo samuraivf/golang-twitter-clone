@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.17.0 (HEAD)
+  labels:
+    io.kompose.service: db-tag
+  name: db-tag
+spec:
+  ports:
+  - name: "5437"
+    port: 5437
+    targetPort: 5432
+  selector:
+    io.kompose.service: db-tag
+status:
+  loadBalancer: {}

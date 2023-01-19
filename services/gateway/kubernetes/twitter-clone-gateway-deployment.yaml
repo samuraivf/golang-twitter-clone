@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: twitter-clone-gateway
+  labels:
+    io.kompose.service: twitter-clone-gateway
+spec:
+  replicas: 1
+  strategy: {}
+  selector:
+    matchLabels:
+      io.kompose.service: twitter-clone-gateway
+  template:
+    metadata:
+      labels:
+        io.kompose.service: twitter-clone-gateway
+    spec:
+      containers:
+      - image: twitter-clone-gateway
+        name: twitter-clone-gateway
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 7000
+        resources: 
+          limits:
+            cpu: 0.2
+            memory: 100M
+      restartPolicy: Always
+status: {}

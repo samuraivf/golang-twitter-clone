@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.17.0 (HEAD)
+  labels:
+    io.kompose.service: twitter-clone-comment
+  name: twitter-clone-comment
+spec:
+  ports:
+  - name: "7005"
+    port: 7005
+    targetPort: 7005
+  selector:
+    io.kompose.service: twitter-clone-comment
+status:
+  loadBalancer: {}

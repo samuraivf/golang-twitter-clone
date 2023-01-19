@@ -19,4 +19,4 @@ RUN cd services/auth && go build -o twitter-clone-auth ./cmd/main.go
 
 EXPOSE 7001
 
-CMD [ "./main" ]
+CMD [ "services/auth/twitter-clone-auth" ]

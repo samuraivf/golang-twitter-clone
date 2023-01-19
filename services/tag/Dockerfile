@@ -19,4 +19,4 @@ RUN cd services/tag && go build -o twitter-clone-tag ./cmd/main.go
 
 EXPOSE 7007
 
-CMD [ "./main" ]
+CMD [ "services/tag/twitter-clone-tag" ]

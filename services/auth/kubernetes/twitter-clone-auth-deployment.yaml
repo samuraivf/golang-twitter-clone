@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: twitter-clone-auth
+  labels:
+    io.kompose.service: twitter-clone-auth
+spec:
+  replicas: 1
+  strategy: {}
+  selector:
+    matchLabels:
+      io.kompose.service: twitter-clone-auth
+  template:
+    metadata:
+      labels:
+        io.kompose.service: twitter-clone-auth
+    spec:
+      containers:
+      - image: twitter-clone-auth
+        name: twitter-clone-auth
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 7001
+        resources: 
+          limits:
+            cpu: 0.2
+            memory: 100M
+      restartPolicy: Always
+status: {}

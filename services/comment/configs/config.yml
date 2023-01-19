@@ -1,8 +1,8 @@
 port: "7005"
 
 db:
-  host: "db"
-  port: "5432"
+  host: "db-comment"
+  port: "5435"
   username: "postgres"
   dbname: "postgres"
   password: "postgreSQL"
