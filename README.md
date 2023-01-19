@@ -1,4 +1,4 @@
-# Twitter Clone (Microservice pattern)
+# Twitter Clone (Microservice pattern with Docker compose files)
 
 ## If you want to look at monolith implementation of this project: Switch to main branch
 
