@@ -1,4 +1,4 @@
-# Twitter Clone (Microservice pattern)
+# Twitter Clone (Microservice pattern with Kubernetes files)
 
 ## If you want to look at monolith implementation of this project: Switch to main branch
 
@@ -7,3 +7,4 @@
 - Postgres
 - Redis
 - Docker
+- Kubernetes
